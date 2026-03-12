@@ -1,0 +1,44 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/sidebar') %>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h2>Edit Teacher</h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="/teachers" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <% if (error) { %>
+            <div class="alert alert-danger"><%= error %></div>
+        <% } %>
+        <form action="/teachers/<%= teacher._id %>/edit" method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <input type="text" name="firstName" id="firstName" class="form-control" value="<%= teacher.firstName %>" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" name="lastName" id="lastName" class="form-control" value="<%= teacher.lastName %>" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" name="email" id="email" class="form-control" value="<%= teacher.email %>">
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone Number</label>
+                <input type="text" name="phone" id="phone" class="form-control" value="<%= teacher.phone %>">
+            </div>
+            <button class="btn btn-primary">Update</button>
+            <a href="/teachers/<%= teacher._id %>/delete" class="btn btn-danger ms-2" onclick="return confirm('Are you sure?');">Delete</a>
+        </form>
+    </div>
+</div>
+
+<%- include('../layouts/footer') %>
+<%- include('../layouts/close-sidebar') %>

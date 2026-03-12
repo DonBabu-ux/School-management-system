@@ -1,0 +1,85 @@
+<% include ../layouts/header %>
+<% include ../layouts/sidebar %>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h2>Schedule Exam</h2>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form action="/exams/add" method="POST">
+            <div class="mb-3">
+                <label for="examName" class="form-label">Exam Name</label>
+                <input type="text" name="examName" id="examName" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="examType" class="form-label">Type</label>
+                <select name="examType" id="examType" class="form-control" required>
+                    <option value="Midterm">Midterm</option>
+                    <option value="Final">Final</option>
+                    <option value="Quiz">Quiz</option>
+                    <option value="Test">Test</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="class" class="form-label">Class</label>
+                <select name="class" id="class" class="form-control" required>
+                    <% classes.forEach(cls => { %>
+                        <option value="<%= cls._id %>"><%= cls.className %> <%= cls.section %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="subject" class="form-label">Subject</label>
+                <select name="subject" id="subject" class="form-control" required>
+                    <% subjects.forEach(sub => { %>
+                        <option value="<%= sub._id %>"><%= sub.name %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="date" class="form-label">Date</label>
+                    <input type="date" name="date" id="date" class="form-control" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="startTime" class="form-label">Start Time</label>
+                    <input type="time" name="startTime" id="startTime" class="form-control">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="endTime" class="form-label">End Time</label>
+                    <input type="time" name="endTime" id="endTime" class="form-control">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="totalMarks" class="form-label">Total Marks</label>
+                    <input type="number" name="totalMarks" id="totalMarks" class="form-control" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="passingMarks" class="form-label">Passing Marks</label>
+                    <input type="number" name="passingMarks" id="passingMarks" class="form-control">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="room" class="form-label">Room</label>
+                    <input type="text" name="room" id="room" class="form-control">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="invigilator" class="form-label">Invigilator</label>
+                <select name="invigilator" id="invigilator" class="form-control">
+                    <option value="">-- none --</option>
+                    <% teachers.forEach(teacher => { %>
+                        <option value="<%= teacher._id %>"><%= teacher.firstName %> <%= teacher.lastName %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Exam</button>
+        </form>
+    </div>
+</div>
+
+<% include ../layouts/footer %>
+<% include ../layouts/close-sidebar %>

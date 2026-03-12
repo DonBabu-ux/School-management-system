@@ -1,0 +1,47 @@
+<% include ../layouts/header %>
+<% include ../layouts/sidebar %>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h2>Edit Class</h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="/classes" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form action="/classes/<%= class._id %>/edit" method="POST">
+            <div class="mb-3">
+                <label for="className" class="form-label">Class Name</label>
+                <input type="text" name="className" id="className" class="form-control" value="<%= class.className %>" required>
+            </div>
+            <div class="mb-3">
+                <label for="section" class="form-label">Section</label>
+                <input type="text" name="section" id="section" class="form-control" value="<%= class.section %>">
+            </div>
+            <div class="mb-3">
+                <label for="classTeacher" class="form-label">Class Teacher</label>
+                <select name="classTeacher" id="classTeacher" class="form-control">
+                    <option value="">-- select --</option>
+                    <% teachers.forEach(t => { %>
+                        <option value="<%= t._id %>" <%= class.classTeacher && (class.classTeacher.toString() === t._id.toString()) ? 'selected' : '' %>><%= t.firstName %> <%= t.lastName %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="academicYear" class="form-label">Academic Year</label>
+                <input type="text" name="academicYear" id="academicYear" class="form-control" value="<%= class.academicYear %>">
+            </div>
+            <div class="mb-3">
+                <label for="capacity" class="form-label">Capacity</label>
+                <input type="number" name="capacity" id="capacity" class="form-control" value="<%= class.capacity %>">
+            </div>
+            <button class="btn btn-primary">Update Class</button>
+        </form>
+    </div>
+</div>
+
+<% include ../layouts/footer %>
+<% include ../layouts/close-sidebar %>

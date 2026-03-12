@@ -1,0 +1,50 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/sidebar') %>
+
+<div class="container mt-4">
+    <h2><%= class.className %> <%= class.section %></h2>
+    <div class="mb-3">
+        <a href="/classes" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back to Classes</a>
+        <a href="/classes/<%= class._id %>/edit" class="btn btn-primary"><i class="bi bi-pencil"></i> Edit Class</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    Class Information
+                </div>
+                <div class="card-body">
+                    <p><strong>Class Name:</strong> <%= class.className %></p>
+                    <p><strong>Section:</strong> <%= class.section || '-' %></p>
+                    <p><strong>Teacher:</strong> <%= class.classTeacher ? class.classTeacher.firstName + ' ' + class.classTeacher.lastName : 'Unassigned' %></p>
+                    <p><strong>Students Enrolled:</strong> <%= class.students ? class.students.length : 0 %></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    Subjects & Teachers
+                </div>
+                <div class="card-body">
+                    <% if (class.subjects && class.subjects.length) { %>
+                        <ul class="list-group">
+                        <% class.subjects.forEach(s => { %>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><%= s.subject ? s.subject.name : 'Unknown' %></span>
+                                <small><%= s.teacher ? s.teacher.firstName + ' ' + s.teacher.lastName : 'TBD' %></small>
+                            </li>
+                        <% }) %>
+                        </ul>
+                    <% } else { %>
+                        <p class="text-muted">No subjects assigned.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layouts/footer') %>
+<%- include('../layouts/close-sidebar') %>

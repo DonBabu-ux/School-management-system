@@ -1,0 +1,85 @@
+<% include ../layouts/header %>
+<% include ../layouts/sidebar %>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h2>Results for <%= exam ? exam.examName : '' %></h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="/exams" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5>Add New Result</h5>
+        <form action="/exams/<%= exam._id %>/results/add" method="POST">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="studentId" class="form-label">Student</label>
+                    <select name="studentId" id="studentId" class="form-control" required>
+                        <% if (students && students.length) { %>
+                            <% students.forEach(s => { %>
+                                <option value="<%= s._id %>"><%= s.fullName %></option>
+                            <% }) %>
+                        <% } %>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="marksObtained" class="form-label">Marks</label>
+                    <input type="number" name="marksObtained" id="marksObtained" class="form-control" required>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select name="status" id="status" class="form-control">
+                        <option value="Pass">Pass</option>
+                        <option value="Fail">Fail</option>
+                        <option value="Absent">Absent</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="remarks" class="form-label">Remarks</label>
+                    <input type="text" name="remarks" id="remarks" class="form-control">
+                </div>
+            </div>
+            <button class="btn btn-success">Add Result</button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5>Existing Results</h5>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Marks</th>
+                    <th>Percentage</th>
+                    <th>Grade</th>
+                    <th>Status</th>
+                    <th>Published</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (results && results.length) { %>
+                    <% results.forEach(r => { %>
+                        <tr>
+                            <td><%= r.student.fullName %></td>
+                            <td><%= r.marksObtained %></td>
+                            <td><%= r.percentage.toFixed(2) %> %</td>
+                            <td><%= r.grade %></td>
+                            <td><%= r.status %></td>
+                            <td><%= r.publishedDate.toLocaleDateString() %></td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr><td colspan="6" class="text-center">No results yet</td></tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<% include ../layouts/footer %>
+<% include ../layouts/close-sidebar %>

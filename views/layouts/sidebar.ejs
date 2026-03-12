@@ -1,0 +1,34 @@
+<div class="row g-0">
+    <div class="col-md-2 bg-dark" style="min-height: calc(100vh - 56px);">
+        <div class="list-group list-group-flush bg-dark">
+            <a href="/dashboard" 
+               class="list-group-item list-group-item-action bg-dark text-white border-0 <%= currentUrl === '/dashboard' ? 'active' : '' %>">
+                <i class="fas fa-tachometer-alt me-3"></i> Dashboard
+            </a>
+            <a href="/students" 
+               class="list-group-item list-group-item-action bg-dark text-white border-0 <%= currentUrl && currentUrl.startsWith('/students') ? 'active' : '' %>">
+                <i class="fas fa-user-graduate me-3"></i> Students
+            </a>
+            <a href="/teachers" 
+               class="list-group-item list-group-item-action bg-dark text-white border-0 <%= currentUrl && currentUrl.startsWith('/teachers') ? 'active' : '' %>">
+                <i class="fas fa-chalkboard-teacher me-3"></i> Teachers
+            </a>
+            <a href="/classes" 
+               class="list-group-item list-group-item-action bg-dark text-white border-0 <%= currentUrl && currentUrl.startsWith('/classes') ? 'active' : '' %>">
+                <i class="fas fa-door-open me-3"></i> Classes
+            </a>
+            <a href="/exams" 
+               class="list-group-item list-group-item-action bg-dark text-white border-0 <%= currentUrl && currentUrl.startsWith('/exams') ? 'active' : '' %>">
+                <i class="fas fa-pencil-alt me-3"></i> Exams
+            </a>
+            <a href="/attendance" 
+               class="list-group-item list-group-item-action bg-dark text-white border-0 <%= currentUrl && currentUrl.startsWith('/attendance') ? 'active' : '' %>">
+                <i class="fas fa-calendar-check me-3"></i> Attendance
+            </a>
+            <a href="/fees" 
+               class="list-group-item list-group-item-action bg-dark text-white border-0 <%= currentUrl && currentUrl.startsWith('/fees') ? 'active' : '' %>">
+                <i class="fas fa-money-bill-wave me-3"></i> Fees
+            </a>
+        </div>
+    </div>
+    <div class="col-md-10 p-4">

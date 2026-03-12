@@ -1,0 +1,63 @@
+<% include ../layouts/header %>
+<% include ../layouts/sidebar %>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h2>Mark Attendance</h2>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form action="/attendance/mark" method="POST">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="classId" class="form-label">Class</label>
+                    <select id="classId" name="classId" class="form-control" onchange="this.form.submit()">
+                        <option value="">-- select class --</option>
+                        <% classes.forEach(c => { %>
+                            <option value="<%= c._id %>" <%= selectedClass == c._id ? 'selected' : '' %>><%= c.className %> <%= c.section %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="date" class="form-label">Date</label>
+                    <input type="date" id="date" name="date" class="form-control" value="<%= date %>" required>
+                </div>
+            </div>
+            <% if (students && students.length) { %>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% students.forEach(s => { %>
+                            <tr>
+                                <td><%= s.fullName %></td>
+                                <td>
+                                    <select name="attendance[<%= s._id %>]" class="form-control">
+                                        <option value="Present">Present</option>
+                                        <option value="Absent">Absent</option>
+                                        <option value="Late">Late</option>
+                                        <option value="Holiday">Holiday</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+                <button class="btn btn-primary">Save Attendance</button>
+            <% } else if (selectedClass) { %>
+                <p class="text-muted">No active students in this class.</p>
+            <% } else { %>
+                <p class="text-muted">Please choose a class to load students.</p>
+            <% } %>
+        </form>
+    </div>
+</div>
+
+<% include ../layouts/footer %>
+<% include ../layouts/close-sidebar %>

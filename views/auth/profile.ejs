@@ -1,0 +1,42 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/sidebar') %>
+
+<div class="container mt-4">
+    <h2>My Profile</h2>
+    <% if (error) { %>
+        <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+    <% if (success) { %>
+        <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    <form action="/profile" method="POST">
+        <div class="mb-3">
+            <label class="form-label">First Name</label>
+            <input type="text" name="firstName" class="form-control" value="<%= user.firstName %>" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Last Name</label>
+            <input type="text" name="lastName" class="form-control" value="<%= user.lastName %>" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Email (cannot change)</label>
+            <input type="email" class="form-control" value="<%= user.email %>" readonly>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Phone Number</label>
+            <input type="text" name="phoneNumber" class="form-control" value="<%= user.phoneNumber %>">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Address</label>
+            <textarea name="address[street]" class="form-control" placeholder="Street"><%= (user.address && user.address.street) ? user.address.street : '' %></textarea>
+            <input type="text" name="address[city]" class="form-control mt-1" placeholder="City" value="<%= (user.address && user.address.city) ? user.address.city : '' %>">
+            <input type="text" name="address[state]" class="form-control mt-1" placeholder="State" value="<%= (user.address && user.address.state) ? user.address.state : '' %>">
+            <input type="text" name="address[zipCode]" class="form-control mt-1" placeholder="ZIP Code" value="<%= (user.address && user.address.zipCode) ? user.address.zipCode : '' %>">
+            <input type="text" name="address[country]" class="form-control mt-1" placeholder="Country" value="<%= (user.address && user.address.country) ? user.address.country : '' %>">
+        </div>
+        <button class="btn btn-primary">Update Profile</button>
+    </form>
+</div>
+
+<%- include('../layouts/footer') %>
+<%- include('../layouts/close-sidebar') %>

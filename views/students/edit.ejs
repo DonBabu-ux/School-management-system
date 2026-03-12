@@ -1,0 +1,115 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/sidebar') %>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h2>Edit Student</h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="/students" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>
+
+<!-- Error Message -->
+<% if (error) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i> <%= error %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<% } %>
+
+<% if (success) { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill"></i> <%= success %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<% } %>
+
+<div class="form-card">
+    <form action="/students/<%= student._id %>/edit" method="POST" enctype="multipart/form-data" id="studentForm">
+        <!-- Profile Picture Upload -->
+        <div class="avatar-upload">
+            <div class="mb-3">
+                <img src="/uploads/students/<%= student.profilePicture || 'default-student.png' %>" alt="Preview" class="preview-avatar" id="avatarPreview">
+            </div>
+            <div class="mb-3">
+                <label for="profilePicture" class="form-label">Profile Picture</label>
+                <input type="file" class="form-control" id="profilePicture" name="profilePicture" accept="image/*" onchange="previewImage(this)">
+                <small class="text-muted">Leave empty to keep existing avatar</small>
+            </div>
+        </div>
+
+        <!-- Personal Information Section -->
+        <div class="form-section">
+            <h5><i class="bi bi-person-badge"></i> Personal Information</h5>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="firstName" class="form-label required">First Name</label>
+                    <input type="text" class="form-control" id="firstName" name="firstName" required value="<%= student.firstName %>">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="lastName" class="form-label required">Last Name</label>
+                    <input type="text" class="form-control" id="lastName" name="lastName" required value="<%= student.lastName %>">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="studentId" class="form-label required">Student ID</label>
+                    <input type="text" class="form-control" id="studentId" name="admissionNumber" required value="<%= student.admissionNumber %>" readonly>
+                    <small class="text-muted">Auto-generated admission number</small>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="email" name="email" value="<%= student.email || '' %>">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="phoneNumber" class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" value="<%= student.phoneNumber || '' %>">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="dateOfBirth" class="form-label required">Date of Birth</label>
+                    <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth" required value="<%= student.dateOfBirth.toISOString().split('T')[0] %>">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="gender" class="form-label required">Gender</label>
+                    <select class="form-control" id="gender" name="gender" required>
+                        <option value="Male" <%= student.gender === 'Male' ? 'selected' : '' %>>Male</option>
+                        <option value="Female" <%= student.gender === 'Female' ? 'selected' : '' %>>Female</option>
+                        <option value="Other" <%= student.gender === 'Other' ? 'selected' : '' %>>Other</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="class" class="form-label required">Class</label>
+                    <select class="form-control" id="class" name="class" required>
+                        <% classes.forEach(cl => { %>
+                            <option value="<%= cl._id %>" <%= student.class && student.class.toString() === cl._id.toString() ? 'selected' : '' %>><%= cl.className %> <%= cl.section %></option>
+                        <% }) %>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-control" id="status" name="status">
+                        <option value="Active" <%= student.status === 'Active' ? 'selected' : '' %>>Active</option>
+                        <option value="Inactive" <%= student.status === 'Inactive' ? 'selected' : '' %>>Inactive</option>
+                        <option value="Graduated" <%= student.status === 'Graduated' ? 'selected' : '' %>>Graduated</option>
+                        <option value="Expelled" <%= student.status === 'Expelled' ? 'selected' : '' %>>Expelled</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Additional sections could be added here -->
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update Student</button>
+    </form>
+</div>
+
+<%- include('../layouts/footer') %>
+<%- include('../layouts/close-sidebar') %>

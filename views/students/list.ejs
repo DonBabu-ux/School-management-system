@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 48px 0 0;
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+        }
+        .sidebar-sticky {
+            height: calc(100vh - 48px);
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        .nav-link {
+            color: #333;
+            padding: 0.5rem 1rem;
+            margin: 0.2rem 0;
+        }
+        .nav-link:hover {
+            background-color: #f8f9fa;
+        }
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .nav-link i {
+            margin-right: 10px;
+        }
+        main {
+            padding-top: 48px;
+        }
+        .search-box {
+            max-width: 300px;
+        }
+        .student-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .table-actions .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Main Menu</span>
+                    </h6>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/students">
+                                <i class="bi bi-people"></i> Students
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/teachers">
+                                <i class="bi bi-person-badge"></i> Teachers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/classes">
+                                <i class="bi bi-book"></i> Classes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/fees">
+                                <i class="bi bi-cash"></i> Fees
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/attendance">
+                                <i class="bi bi-calendar-check"></i> Attendance
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/exams">
+                                <i class="bi bi-pencil"></i> Exams
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/logout">
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-10 ms-sm-auto px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Students Management</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <a href="/students/add" class="btn btn-sm btn-primary me-2">
+                            <i class="bi bi-person-plus"></i> Add New Student
+                        </a>
+                        <a href="/students/export" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-download"></i> Export
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Filters and Search -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <form id="filterForm" class="d-flex" method="GET" action="/students">
+                            <input type="text" name="search" class="form-control" placeholder="Search students..." id="searchInput" value="<%= searchQuery || '' %>">
+                            <select name="classId" class="form-select ms-2">
+                                <option value="">All Classes</option>
+                                <% if (classes && classes.length) { %>
+                                    <% classes.forEach(c => { %>
+                                        <option value="<%= c._id %>" <%= selectedClass == c._id ? 'selected' : '' %>><%= c.className %> <%= c.section %></option>
+                                    <% }) %>
+                                <% } %>
+                            </select>
+                            <button class="btn btn-outline-secondary ms-2" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <!-- placeholder for extra actions if needed -->
+                    </div>
+                </div>
+
+                <!-- Students Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Class</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (students && students.length > 0) { %>
+                                <% students.forEach(function(student) { %>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="<%= student.profilePicture || '/images/default-avatar.png' %>" 
+                                                     alt="<%= student.firstName %>" 
+                                                     class="student-avatar me-2">
+                                                <div>
+                                                    <strong><%= student.firstName %> <%= student.lastName %></strong>
+                                                    <br>
+                                                    <small class="text-muted">ID: <%= student.admissionNumber || 'N/A' %></small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><%= student.email || '-' %></td>
+                                        <td><%= student.phoneNumber || 'N/A' %></td>
+                                        <td><%= student.class ? student.class.className + ' ' + (student.class.section || '') : 'Not Assigned' %></td>
+                                        <td>
+                                            <% if (student.status === 'Active') { %>
+                                                <span class="status-badge status-active">Active</span>
+                                            <% } else { %>
+                                                <span class="status-badge status-inactive"><%= student.status || 'Inactive' %></span>
+                                            <% } %>
+                                        </td>
+                                        <td class="table-actions">
+                                            <a href="/students/view/<%= student._id %>" class="btn btn-sm btn-info" title="View">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="/students/edit/<%= student._id %>" class="btn btn-sm btn-warning" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button onclick="deleteStudent('<%= student._id %>')" class="btn btn-sm btn-danger" title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <i class="bi bi-people fs-1 d-block text-muted mb-2"></i>
+                                        <h5>No Students Found</h5>
+                                        <p class="text-muted">Get started by adding a new student.</p>
+                                        <a href="/students/add" class="btn btn-primary">
+                                            <i class="bi bi-person-plus"></i> Add New Student
+                                        </a>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <% if (totalPages && totalPages > 1) { %>
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                                <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+                            </li>
+                            
+                            <% for (let i = 1; i <= totalPages; i++) { %>
+                                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                                </li>
+                            <% } %>
+                            
+                            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                                <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                <% } %>
+            </main>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this student?</p>
+                    <p class="text-danger"><small>This action cannot be undone.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Delete student function
+        function deleteStudent(studentId) {
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            document.getElementById('confirmDeleteBtn').href = '/students/delete/' + studentId;
+            modal.show();
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            // Implement search logic here
+            console.log('Searching for:', e.target.value);
+        });
+
+        // Class filter
+        document.getElementById('classFilter').addEventListener('change', function(e) {
+            // Implement filter logic here
+            console.log('Filtering by class:', e.target.value);
+        });
+    </script>
+</body>
+</html>

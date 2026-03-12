@@ -1,0 +1,24 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/sidebar') %>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h2><%= teacher.firstName %> <%= teacher.lastName %></h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="/teachers" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</a>
+        <a href="/teachers/<%= teacher._id %>/edit" class="btn btn-primary ms-2"><i class="bi bi-pencil"></i> Edit</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <p><strong>Email:</strong> <%= teacher.email || '-' %></p>
+        <p><strong>Phone:</strong> <%= teacher.phone || '-' %></p>
+        <p><strong>Employee ID:</strong> <%= teacher.employeeId || '-' %></p>
+        <p><strong>Status:</strong> <%= teacher.status || '-' %></p>
+    </div>
+</div>
+
+<%- include('../layouts/footer') %>
+<%- include('../layouts/close-sidebar') %>
