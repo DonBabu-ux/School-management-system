@@ -1,42 +1,147 @@
-<%- include('../layouts/header') %>
-<%- include('../layouts/sidebar') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EduSmart</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-main">
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <%- include('../layouts/sidebar') %>
 
-<div class="container mt-4">
-    <h2>My Profile</h2>
-    <% if (error) { %>
-        <div class="alert alert-danger"><%= error %></div>
-    <% } %>
-    <% if (success) { %>
-        <div class="alert alert-success"><%= success %></div>
-    <% } %>
-    <form action="/profile" method="POST">
-        <div class="mb-3">
-            <label class="form-label">First Name</label>
-            <input type="text" name="firstName" class="form-control" value="<%= user.firstName %>" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Last Name</label>
-            <input type="text" name="lastName" class="form-control" value="<%= user.lastName %>" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Email (cannot change)</label>
-            <input type="email" class="form-control" value="<%= user.email %>" readonly>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Phone Number</label>
-            <input type="text" name="phoneNumber" class="form-control" value="<%= user.phoneNumber %>">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Address</label>
-            <textarea name="address[street]" class="form-control" placeholder="Street"><%= (user.address && user.address.street) ? user.address.street : '' %></textarea>
-            <input type="text" name="address[city]" class="form-control mt-1" placeholder="City" value="<%= (user.address && user.address.city) ? user.address.city : '' %>">
-            <input type="text" name="address[state]" class="form-control mt-1" placeholder="State" value="<%= (user.address && user.address.state) ? user.address.state : '' %>">
-            <input type="text" name="address[zipCode]" class="form-control mt-1" placeholder="ZIP Code" value="<%= (user.address && user.address.zipCode) ? user.address.zipCode : '' %>">
-            <input type="text" name="address[country]" class="form-control mt-1" placeholder="Country" value="<%= (user.address && user.address.country) ? user.address.country : '' %>">
-        </div>
-        <button class="btn btn-primary">Update Profile</button>
-    </form>
-</div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <%- include('../layouts/header') %>
 
-<%- include('../layouts/footer') %>
-<%- include('../layouts/close-sidebar') %>
+            <!-- Profile Content -->
+            <div class="animate-up">
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <div>
+                        <h2 class="h3 text-main mb-1">My Profile</h2>
+                        <p class="text-muted small mb-0">Manage your personal information, contact details, and account security.</p>
+                    </div>
+                </div>
+
+                <% if (error) { %>
+                    <div class="alert alert-danger mb-4 shadow-sm border-0 d-flex align-items-center rounded-16 p-3 animate-up">
+                        <i class="bi bi-exclamation-triangle-fill me-3 fs-3"></i>
+                        <div class="small fw-medium"><%= error %></div>
+                    </div>
+                <% } %>
+                <% if (typeof success !== 'undefined' && success) { %>
+                    <div class="alert alert-success mb-4 shadow-sm border-0 d-flex align-items-center rounded-16 p-3 animate-up">
+                        <i class="bi bi-check-circle-fill me-3 fs-3"></i>
+                        <div class="small fw-medium"><%= success %></div>
+                    </div>
+                <% } %>
+
+                <form action="/profile" method="POST">
+                    <div class="row g-4">
+                        <!-- Profile Card -->
+                        <div class="col-lg-4">
+                            <div class="card border-0 shadow-sm p-4 text-center h-100">
+                                <div class="position-relative mx-auto mb-4" style="width: 140px;">
+                                    <div class="avatar-container mx-auto shadow-md rounded-circle overflow-hidden border-4 border-white" style="width: 140px; height: 140px;">
+                                        <img src="/uploads/<%= user.profilePicture || 'default-avatar.png' %>" class="w-100 h-100 object-fit-cover shadow-sm">
+                                    </div>
+                                    <button type="button" class="btn btn-primary btn-sm rounded-circle position-absolute bottom-0 end-0 p-2 shadow-lg border-2 border-white">
+                                        <i class="bi bi-camera-fill"></i>
+                                    </button>
+                                </div>
+                                <h4 class="text-main mb-1"><%= profileData.firstName %> <%= profileData.lastName %></h4>
+                                <div class="badge bg-primary bg-opacity-10 text-primary px-3 rounded-pill mb-4 small fw-bold">
+                                    <%= profileData.role.toUpperCase() %>
+                                </div>
+                                <div class="text-start border-top pt-4">
+                                    <h6 class="text-muted small text-uppercase mb-3 fw-bold">Account Overview</h6>
+                                    <div class="d-flex justify-content-between mb-2 small">
+                                        <span class="text-muted">Member Since</span>
+                                        <span class="text-main fw-bold"><%= new Date(profileData.createdAt).toLocaleDateString() %></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2 small">
+                                        <span class="text-muted">Last Activity</span>
+                                        <span class="text-main fw-bold">Today, 10:45 AM</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between small">
+                                        <span class="text-muted">Account Status</span>
+                                        <span class="text-success fw-bold">Verified</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Update Column -->
+                        <div class="col-lg-8">
+                            <div class="card border-0 shadow-sm p-4 mb-4">
+                                <h6 class="mb-4 text-muted small text-uppercase fw-bold"><i class="bi bi-person-gear me-2"></i>Personal Information</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">First Name</label>
+                                        <input type="text" name="firstName" class="form-control bg-light border-0 py-3" value="<%= profileData.firstName %>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Last Name</label>
+                                        <input type="text" name="lastName" class="form-control bg-light border-0 py-3" value="<%= profileData.lastName %>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Email Address (Primary)</label>
+                                        <input type="email" class="form-control bg-light border-0 py-3 text-muted" value="<%= profileData.email %>" readonly disabled>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Mobile Phone Number</label>
+                                        <input type="text" name="phoneNumber" class="form-control bg-light border-0 py-3" value="<%= profileData.phoneNumber %>">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card border-0 shadow-sm p-4 mb-4">
+                                <h6 class="mb-4 text-muted small text-uppercase fw-bold"><i class="bi bi-geo-alt me-2"></i>Mailing Address</h6>
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold small text-muted">Street Address</label>
+                                        <input type="text" name="address[street]" class="form-control bg-light border-0 py-3" value="<%= (profileData.address && profileData.address.street) ? profileData.address.street : '' %>" placeholder="e.g. 123 Education Way">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">City</label>
+                                        <input type="text" name="address[city]" class="form-control bg-light border-0 py-3" value="<%= (profileData.address && profileData.address.city) ? profileData.address.city : '' %>">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Country</label>
+                                        <input type="text" name="address[country]" class="form-control bg-light border-0 py-3" value="<%= (profileData.address && profileData.address.country) ? profileData.address.country : '' %>">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary px-5 py-3 rounded-12 shadow-md fw-bold">Save Changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sidebar Toggle for Mobile
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('show');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -33,7 +33,7 @@ exports.getAddExam = async (req, res) => {
     try {
         const classes = await Class.find();
         const subjects = await Subject.find();
-        const teachers = await Teacher.find({ status: 'Active' });
+        const teachers = await Teacher.find();
         
         res.render('exams/add', {
             title: 'Schedule Exam',

@@ -1,5 +1,7 @@
 const Student = require('../models/studentModel');
 const Class = require('../models/classModel');
+const User = require('../models/userModel');
+const crypto = require('crypto');
 const Attendance = require('../models/attendanceModel');
 const Result = require('../models/resultModel');
 const Fee = require('../models/feeModel');
@@ -42,7 +44,7 @@ exports.listStudents = async (req, res) => {
 // Show add student form
 exports.getAddStudent = async (req, res) => {
     try {
-        const classes = await Class.find({ status: 'Active' });
+        const classes = await Class.find();
         res.render('students/add', {
             title: 'Add Student',
             classes,
@@ -59,20 +61,42 @@ exports.getAddStudent = async (req, res) => {
 exports.addStudent = async (req, res) => {
     try {
         const studentData = req.body;
-        
-        // Generate admission number
-        const lastStudent = await Student.findOne().sort({ createdAt: -1 });
-        let admissionNumber = 'STU001';
-        if (lastStudent && lastStudent.admissionNumber) {
-            const lastNum = parseInt(lastStudent.admissionNumber.replace('STU', ''));
-            admissionNumber = `STU${String(lastNum + 1).padStart(3, '0')}`;
-        }
-        studentData.admissionNumber = admissionNumber;
-        if (req.file) {
-            studentData.profilePicture = req.file.filename;
-        }
+        const PigeonHole = require('../models/pigeonHoleModel');
+
+        // Generate a random 8 char password and an admission number
+        const generatedPassword = crypto.randomBytes(4).toString('hex').toUpperCase();
+        // Admission Number: ADM followed by last 2 digits of year and a random 4 digit number
+        const year = new Date().getFullYear().toString().slice(-2);
+        const randomNum = Math.floor(1000 + Math.random() * 9000);
+        studentData.admissionNumber = studentData.admissionNumber || `ADM${year}${randomNum}`;
+
+        // Enforce required fields with fallbacks
+        studentData.email = studentData.email || `${studentData.admissionNumber.toLowerCase()}@edusmart.com`;
+        studentData.phoneNumber = studentData.phoneNumber || 'N/A';
+
         const student = new Student(studentData);
         await student.save();
+
+        // Create user account for student
+        const user = new User({
+            firstName: studentData.firstName,
+            lastName: studentData.lastName,
+            username: studentData.admissionNumber, // Set login ID to Admission Number
+            email: studentData.email || `${studentData.admissionNumber.toLowerCase()}@edusmart.com`,
+            password: generatedPassword,
+            role: 'student',
+            phoneNumber: studentData.phoneNumber || 'N/A'
+        });
+        await user.save();
+
+        // Save credential to Pigeon Hole
+        const pigeonHole = new PigeonHole({
+            ownerName: `${studentData.firstName} ${studentData.lastName}`,
+            username: studentData.admissionNumber,
+            plainPassword: generatedPassword,
+            role: 'student'
+        });
+        await pigeonHole.save();
 
         // Add student to class
         if (studentData.class) {
@@ -81,10 +105,19 @@ exports.addStudent = async (req, res) => {
             });
         }
 
-        res.redirect('/students');
+        res.render('students/add-success', {
+            title: 'Student Successfully Admitted',
+            user: req.session.user,
+            credentials: {
+                regNo: studentData.admissionNumber,
+                email: studentData.email || 'N/A',
+                password: generatedPassword,
+                name: `${studentData.firstName} ${studentData.lastName}`
+            }
+        });
     } catch (error) {
         console.error(error);
-        const classes = await Class.find({ status: 'Active' });
+        const classes = await Class.find();
         res.render('students/add', {
             title: 'Add Student',
             classes,
@@ -140,7 +173,7 @@ exports.viewStudent = async (req, res) => {
 exports.getEditStudent = async (req, res) => {
     try {
         const student = await Student.findById(req.params.id);
-        const classes = await Class.find({ status: 'Active' });
+        const classes = await Class.find();
         
         if (!student) {
             return res.status(404).render('404', { user: req.session.user });
@@ -151,7 +184,8 @@ exports.getEditStudent = async (req, res) => {
             student,
             classes,
             user: req.session.user,
-            error: null
+            error: null,
+            success: null
         });
     } catch (error) {
         console.error(error);
@@ -163,7 +197,7 @@ exports.getEditStudent = async (req, res) => {
 exports.updateStudent = async (req, res) => {
     try {
         if (req.file) {
-            req.body.profilePicture = req.file.filename;
+            req.body.profilePicture = 'students/' + req.file.filename;
         }
         const student = await Student.findByIdAndUpdate(
             req.params.id,

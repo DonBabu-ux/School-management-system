@@ -1,30 +1,133 @@
-<%- include('../layouts/header') %>
-<%- include('../layouts/sidebar') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EduSmart</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-main">
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <%- include('../layouts/sidebar') %>
 
-<div class="container mt-4">
-    <h2>Settings</h2>
-    <% if (error) { %>
-        <div class="alert alert-danger"><%= error %></div>
-    <% } %>
-    <% if (success) { %>
-        <div class="alert alert-success"><%= success %></div>
-    <% } %>
-    <form action="/settings" method="POST">
-        <div class="mb-3">
-            <label class="form-label">Current Password</label>
-            <input type="password" name="currentPassword" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">New Password</label>
-            <input type="password" name="newPassword" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Confirm New Password</label>
-            <input type="password" name="confirmPassword" class="form-control" required>
-        </div>
-        <button class="btn btn-primary">Change Password</button>
-    </form>
-</div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <%- include('../layouts/header') %>
 
-<%- include('../layouts/footer') %>
-<%- include('../layouts/close-sidebar') %>
+            <!-- Settings Content -->
+            <div class="animate-up">
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <div>
+                        <h2 class="h3 text-main mb-1">Account Settings</h2>
+                        <p class="text-muted small mb-0">Manage your password, login preferences, and account security credentials.</p>
+                    </div>
+                </div>
+
+                <% if (error) { %>
+                    <div class="alert alert-danger mb-4 shadow-sm border-0 d-flex align-items-center rounded-16 p-3 animate-up">
+                        <i class="bi bi-exclamation-triangle-fill me-3 fs-3"></i>
+                        <div class="small fw-medium"><%= error %></div>
+                    </div>
+                <% } %>
+                <% if (typeof success !== 'undefined' && success) { %>
+                    <div class="alert alert-success mb-4 shadow-sm border-0 d-flex align-items-center rounded-16 p-3 animate-up">
+                        <i class="bi bi-check-circle-fill me-3 fs-3"></i>
+                        <div class="small fw-medium"><%= success %></div>
+                    </div>
+                <% } %>
+
+                <form action="/settings" method="POST">
+                    <div class="row g-4 justify-content-center">
+                        <div class="col-lg-7">
+                            <div class="card border-0 shadow-sm p-4 mb-4">
+                                <h6 class="mb-4 text-muted small text-uppercase fw-bold"><i class="bi bi-shield-lock me-2"></i>Security Credentials</h6>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold small text-muted">Current Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0"><i class="bi bi-key"></i></span>
+                                        <input type="password" name="currentPassword" class="form-control bg-light border-0 py-3" placeholder="Enter current password" required>
+                                    </div>
+                                </div>
+
+                                <hr class="my-4 opacity-10">
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold small text-muted">New Secure Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0"><i class="bi bi-shield-plus"></i></span>
+                                        <input type="password" name="newPassword" class="form-control bg-light border-0 py-3" placeholder="Min. 8 characters" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold small text-muted">Confirm New Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-0"><i class="bi bi-shield-check"></i></span>
+                                        <input type="password" name="confirmPassword" class="form-control bg-light border-0 py-3" placeholder="Repeat new password" required>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-light border shadow-none rounded-12 p-3 mb-4 d-flex align-items-start gap-3">
+                                    <i class="bi bi-info-circle-fill text-primary"></i>
+                                    <div class="small text-muted fw-medium lh-base">
+                                        Ensure your new password contains uppercase letters, numbers, and special characters for maximum account security.
+                                    </div>
+                                </div>
+
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary px-5 py-3 rounded-12 shadow-md fw-bold w-100">
+                                        Update Security Credentials
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-5">
+                            <div class="card border-0 shadow-sm p-4 bg-primary text-white mb-4" style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);">
+                                <h6 class="mb-4 small text-uppercase fw-bold text-white-50">Security Fact</h6>
+                                <p class="small mb-4 fw-medium">Regularly updating your password every 90 days is a recommended practice to safeguard sensitive institutional data.</p>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="stats-icon bg-white bg-opacity-20 text-white mb-0" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-shield-shaded"></i>
+                                    </div>
+                                    <div class="small fw-bold">AES-256 Encryption Active</div>
+                                </div>
+                            </div>
+
+                            <div class="card border-0 shadow-sm p-4">
+                                <h6 class="mb-3 small text-uppercase fw-bold text-muted">Active Sessions</h6>
+                                <div class="small text-muted mb-0">
+                                    <i class="bi bi-laptop me-2"></i>Current: Chrome on Windows<br>
+                                    <i class="bi bi-circle-fill text-success ms-4 me-1" style="font-size: 8px;"></i> Online Now
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sidebar Toggle for Mobile
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('show');
+            });
+        }
+    </script>
+</body>
+</html>

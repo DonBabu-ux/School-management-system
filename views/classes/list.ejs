@@ -1,66 +1,133 @@
-<% include ../layouts/header %>
-<% include ../layouts/sidebar %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EduSmart</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-main">
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <%- include('../layouts/sidebar') %>
 
-<div class="row mb-3">
-    <div class="col-md-6">
-        <h2>Classes</h2>
-    </div>
-    <div class="col-md-6 text-end">
-        <a href="/classes/add" class="btn btn-primary">
-            <i class="fas fa-plus-circle me-2"></i>Add New Class
-        </a>
-    </div>
-</div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <%- include('../layouts/header') %>
 
-<div class="card">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Class Name</th>
-                        <th>Section</th>
-                        <th>Class Teacher</th>
-                        <th>Academic Year</th>
-                        <th>Capacity</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% classes.forEach(cls => { %>
-                        <tr>
-                            <td><%= cls.className %></td>
-                            <td><%= cls.section || '-' %></td>
-                            <td>
-                                <% if (cls.classTeacher) { %>
-                                    <%= cls.classTeacher.firstName %> <%= cls.classTeacher.lastName %>
-                                <% } else { %>
-                                    Not Assigned
-                                <% } %>
-                            </td>
-                            <td><%= cls.academicYear %></td>
-                            <td><%= cls.capacity || '-' %></td>
-                            <td>
-                                <a href="/classes/<%= cls._id %>" class="btn btn-sm btn-info">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="/classes/<%= cls._id %>/edit" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="/classes/<%= cls._id %>/timetable" class="btn btn-sm btn-success">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </a>
-                                <a href="/classes/<%= cls._id %>/delete" class="btn btn-sm btn-danger" onclick="return confirm('Delete this class?');">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+            <!-- Class Management Content -->
+            <div class="animate-up">
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <div>
+                        <h2 class="h3 text-main mb-1">Classroom Management</h2>
+                        <p class="text-muted small mb-0">Organize academic classes, assign teachers, and monitor enrollment.</p>
+                    </div>
+                    <a href="/classes/add" class="btn btn-primary">
+                        <i class="bi bi-plus-lg me-2"></i>Create New Class
+                    </a>
+                </div>
 
-<% include ../layouts/footer %>
-<% include ../layouts/close-sidebar %>
+                <!-- Classes Grid -->
+                <div class="row g-4">
+                    <% if (classes && classes.length > 0) { %>
+                        <% classes.forEach(cls => { %>
+                            <div class="col-xl-4 col-md-6">
+                                <div class="card border-0 shadow-sm h-100 animate-up overflow-hidden">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex justify-content-between align-items-start mb-4">
+                                            <div class="stats-icon bg-primary bg-opacity-10 text-primary mb-0" style="width: 50px; height: 50px;">
+                                                <i class="bi bi-book-half"></i>
+                                            </div>
+                                            <div class="dropdown">
+                                                <i class="bi bi-three-dots-vertical text-muted cursor-pointer" data-bs-toggle="dropdown"></i>
+                                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 rounded-12">
+                                                    <li><a class="dropdown-item p-2 rounded-8" href="/classes/<%= cls._id %>"><i class="bi bi-eye me-2"></i> View Details</a></li>
+                                                    <li><a class="dropdown-item p-2 rounded-8" href="/classes/<%= cls._id %>/edit"><i class="bi bi-pencil me-2"></i> Edit Class</a></li>
+                                                    <li><a class="dropdown-item p-2 rounded-8" href="/classes/<%= cls._id %>/timetable"><i class="bi bi-calendar3 me-2"></i> Timetable</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item p-2 rounded-8 text-danger" href="/classes/<%= cls._id %>/delete" onclick="return confirm('Delete this class?')"><i class="bi bi-trash me-2"></i> Delete</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                        <h4 class="text-main mb-1"><%= cls.className %> - <%= cls.section %></h4>
+                                        <p class="text-muted small mb-4 fw-medium">Academic Year 2024 - 2025</p>
+                                        
+                                        <div class="teacher-info d-flex align-items-center gap-3 mb-4 p-3 bg-light rounded-12">
+                                            <div class="rounded-circle bg-white shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <i class="bi bi-person-workspace text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <div class="small text-muted fw-bold text-uppercase" style="font-size: 9px;">Class Teacher</div>
+                                                <div class="small fw-bold text-main">
+                                                    <%= cls.classTeacher ? cls.classTeacher.firstName + ' ' + cls.classTeacher.lastName : 'Not Assigned' %>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="enrollment-stats d-flex justify-content-between align-items-center">
+                                            <div class="text-center">
+                                                <div class="h5 mb-0 fw-bold"><%= cls.students ? cls.students.length : 0 %></div>
+                                                <div class="small text-muted fw-medium">Students</div>
+                                            </div>
+                                            <div class="vr mx-3 text-muted opacity-25"></div>
+                                            <div class="text-center">
+                                                <div class="h5 mb-0 fw-bold"><%= cls.subjects ? cls.subjects.length : 0 %></div>
+                                                <div class="small text-muted fw-medium">Subjects</div>
+                                            </div>
+                                            <div class="vr mx-3 text-muted opacity-25"></div>
+                                            <div class="text-center">
+                                                <div class="h5 mb-0 fw-bold">40</div>
+                                                <div class="small text-muted fw-medium">Capacity</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer bg-white border-top-0 p-4 pt-0">
+                                        <div class="progress bg-light" style="height: 6px; border-radius: 10px;">
+                                            <div class="progress-bar bg-primary" role="progressbar" 
+                                                 style="width: <%= ((cls.students ? cls.students.length : 0) / 40 * 100) %>%; border-radius: 10px;"></div>
+                                        </div>
+                                        <div class="d-flex justify-content-between mt-2">
+                                            <span class="small text-muted fw-medium">Enrollment Ratio</span>
+                                            <span class="small text-main fw-bold"><%= Math.round((cls.students ? cls.students.length : 0) / 40 * 100) %>%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm p-5 text-center">
+                                <i class="bi bi-journals display-3 opacity-10 mb-3"></i>
+                                <h4 class="text-muted">No Classes Defined</h4>
+                                <p class="text-muted mb-4 small">Create your first class to start enrolling students and assigning teachers.</p>
+                                <a href="/classes/add" class="btn btn-primary px-4 mx-auto" style="width: fit-content;">Create Class</a>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sidebar Toggle for Mobile
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('show');
+            });
+        }
+    </script>
+</body>
+</html>

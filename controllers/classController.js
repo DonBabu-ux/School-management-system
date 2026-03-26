@@ -28,7 +28,7 @@ exports.listClasses = async (req, res) => {
 // Show add class form
 exports.getAddClass = async (req, res) => {
     try {
-        const teachers = await Teacher.find({ status: 'Active' });
+        const teachers = await Teacher.find();
         res.render('classes/add', {
             title: 'Add Class',
             teachers,
@@ -77,7 +77,7 @@ exports.viewClass = async (req, res) => {
 
         res.render('classes/profile', {
             title: `${classItem.className} - Class`,
-            class: classItem,
+            cls: classItem,
             user: req.session.user
         });
     } catch (error) {
@@ -90,7 +90,7 @@ exports.viewClass = async (req, res) => {
 exports.getEditClass = async (req, res) => {
     try {
         const classItem = await Class.findById(req.params.id);
-        const teachers = await Teacher.find({ status: 'Active' });
+        const teachers = await Teacher.find();
         
         if (!classItem) {
             return res.status(404).render('404', { user: req.session.user });
@@ -98,7 +98,7 @@ exports.getEditClass = async (req, res) => {
 
         res.render('classes/edit', {
             title: 'Edit Class',
-            class: classItem,
+            cls: classItem,
             teachers,
             user: req.session.user,
             error: null
@@ -125,10 +125,10 @@ exports.updateClass = async (req, res) => {
         res.redirect(`/classes/${classItem._id}`);
     } catch (error) {
         console.error(error);
-        const teachers = await Teacher.find({ status: 'Active' });
+        const teachers = await Teacher.find();
         res.render('classes/edit', {
             title: 'Edit Class',
-            class: await Class.findById(req.params.id),
+            cls: await Class.findById(req.params.id),
             teachers,
             user: req.session.user,
             error: error.message
@@ -160,7 +160,7 @@ exports.getClassTimetable = async (req, res) => {
 
         res.render('classes/timetable', {
             title: `${classItem.className} - Timetable`,
-            class: classItem,
+            cls: classItem,
             user: req.session.user
         });
     } catch (error) {

@@ -1,63 +1,157 @@
-<% include ../layouts/header %>
-<% include ../layouts/sidebar %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EduSmart</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-main">
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <%- include('../layouts/sidebar') %>
 
-<div class="row mb-3">
-    <div class="col-md-6">
-        <h2>Mark Attendance</h2>
-    </div>
-</div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <%- include('../layouts/header') %>
 
-<div class="card">
-    <div class="card-body">
-        <form action="/attendance/mark" method="POST">
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label for="classId" class="form-label">Class</label>
-                    <select id="classId" name="classId" class="form-control" onchange="this.form.submit()">
-                        <option value="">-- select class --</option>
-                        <% classes.forEach(c => { %>
-                            <option value="<%= c._id %>" <%= selectedClass == c._id ? 'selected' : '' %>><%= c.className %> <%= c.section %></option>
-                        <% }) %>
-                    </select>
+            <!-- Mark Attendance Content -->
+            <div class="animate-up">
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <div>
+                        <h2 class="h3 text-main mb-1">Mark Register</h2>
+                        <p class="text-muted small mb-0">Select a class stream and record the daily presence of students.</p>
+                    </div>
+                    <a href="/attendance" class="btn btn-outline-secondary border-0 bg-white shadow-sm">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Tracker
+                    </a>
                 </div>
-                <div class="col-md-4">
-                    <label for="date" class="form-label">Date</label>
-                    <input type="date" id="date" name="date" class="form-control" value="<%= date %>" required>
+
+                <!-- Selection Card -->
+                <div class="card border-0 shadow-sm p-4 mb-4">
+                    <form action="/attendance/mark" method="GET" class="row g-3 align-items-end">
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold small text-muted">Class Stream</label>
+                            <select name="classId" class="form-select bg-light border-0 py-2" required onchange="this.form.submit()">
+                                <option value="">Select Class...</option>
+                                <% classes.forEach(cls => { %>
+                                    <option value="<%= cls._id %>" <%= selectedClass == cls._id ? 'selected' : '' %>><%= cls.className %> - <%= cls.section %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold small text-muted">Attendance Date</label>
+                            <input type="date" name="date" class="form-control bg-light border-0 py-2" value="<%= date %>" required>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100 py-2">Load List</button>
+                        </div>
+                    </form>
                 </div>
+
+                <!-- Students Register Table -->
+                <% if (selectedClass && students && students.length > 0) { %>
+                    <form action="/attendance/mark" method="POST">
+                        <input type="hidden" name="classId" value="<%= selectedClass %>">
+                        <input type="hidden" name="date" value="<%= date %>">
+                        
+                        <div class="card border-0 shadow-sm overflow-hidden">
+                            <div class="p-4 bg-white border-bottom d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Class Register: <span class="text-primary fw-bold font-monospace">10th Grade Alpha</span></h5>
+                                <div class="d-flex gap-3">
+                                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="markAll('Present')">All Present</button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="markAll('Absent')">All Absent</button>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="bg-light bg-opacity-50">
+                                        <tr>
+                                            <th class="ps-4 border-0 text-uppercase small text-muted font-monospace py-3">Student info</th>
+                                            <th class="border-0 text-uppercase small text-muted font-monospace py-3">Admission ID</th>
+                                            <th class="border-0 text-uppercase small text-muted font-monospace py-3 text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% students.forEach(student => { %>
+                                            <tr>
+                                                <td class="ps-4 py-3">
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        <img src="/uploads/<%= student.profilePicture || 'default-avatar.png' %>" 
+                                                             className="rounded-circle border" 
+                                                             style="width: 36px; height: 36px; object-fit: cover;">
+                                                        <div class="fw-bold small text-main"><%= student.firstName %> <%= student.lastName %></div>
+                                                    </div>
+                                                </td>
+                                                <td class="py-3">
+                                                    <span class="small text-muted fw-bold"><%= student.admissionNumber %></span>
+                                                </td>
+                                                <td class="py-3 text-center">
+                                                    <div class="btn-group rounded-pill overflow-hidden border shadow-sm" role="group">
+                                                        <input type="radio" class="btn-check" name="attendance[<%= student._id %>]" id="present_<%= student._id %>" value="Present" checked>
+                                                        <label class="btn btn-outline-success border-0 px-3 small fw-bold" for="present_<%= student._id %>">P</label>
+                                                        
+                                                        <input type="radio" class="btn-check" name="attendance[<%= student._id %>]" id="late_<%= student._id %>" value="Late">
+                                                        <label class="btn btn-outline-warning border-0 px-3 small fw-bold" for="late_<%= student._id %>">L</label>
+                                                        
+                                                        <input type="radio" class="btn-check" name="attendance[<%= student._id %>]" id="absent_<%= student._id %>" value="Absent">
+                                                        <label class="btn btn-outline-danger border-0 px-3 small fw-bold" for="absent_<%= student._id %>">A</label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="card-footer bg-light p-4 text-end">
+                                <button type="submit" class="btn btn-primary px-5 py-3 rounded-12 shadow-md fw-bold">
+                                    Finalize Daily Register
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                <% } else if (selectedClass) { %>
+                    <div class="card border-0 shadow-sm p-5 text-center">
+                        <i class="bi bi-people display-4 opacity-10 mb-3"></i>
+                        <p class="text-muted italic mb-0">No active students found in this class to mark attendance.</p>
+                    </div>
+                <% } else { %>
+                    <div class="card border-0 shadow-sm p-5 text-center bg-light">
+                        <i class="bi bi-hand-index-thumb display-4 opacity-10 mb-3"></i>
+                        <p class="text-muted fw-bold mb-0">Please select a class stream above to load the student registry.</p>
+                    </div>
+                <% } %>
             </div>
-            <% if (students && students.length) { %>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Student</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% students.forEach(s => { %>
-                            <tr>
-                                <td><%= s.fullName %></td>
-                                <td>
-                                    <select name="attendance[<%= s._id %>]" class="form-control">
-                                        <option value="Present">Present</option>
-                                        <option value="Absent">Absent</option>
-                                        <option value="Late">Late</option>
-                                        <option value="Holiday">Holiday</option>
-                                    </select>
-                                </td>
-                            </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
-                <button class="btn btn-primary">Save Attendance</button>
-            <% } else if (selectedClass) { %>
-                <p class="text-muted">No active students in this class.</p>
-            <% } else { %>
-                <p class="text-muted">Please choose a class to load students.</p>
-            <% } %>
-        </form>
+        </main>
     </div>
-</div>
 
-<% include ../layouts/footer %>
-<% include ../layouts/close-sidebar %>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function markAll(status) {
+            const checks = document.querySelectorAll('.btn-check');
+            checks.forEach(check => {
+                if (check.value === status) {
+                    check.checked = true;
+                }
+            });
+        }
+        
+        // Sidebar Toggle for Mobile
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('show');
+            });
+        }
+    </script>
+</body>
+</html>

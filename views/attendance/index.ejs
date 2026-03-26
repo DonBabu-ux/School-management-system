@@ -1,22 +1,162 @@
-<% include ../layouts/header %>
-<% include ../layouts/sidebar %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EduSmart</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-main">
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <%- include('../layouts/sidebar') %>
 
-<div class="row mb-3">
-    <div class="col-md-6">
-        <h2>Attendance</h2>
-    </div>
-    <div class="col-md-6 text-end">
-        <a href="/attendance/mark" class="btn btn-primary">
-            <i class="fas fa-check-circle me-2"></i>Mark Attendance
-        </a>
-    </div>
-</div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <%- include('../layouts/header') %>
 
-<div class="card">
-    <div class="card-body">
-        <p class="text-muted">Select an option from the menu.</p>
-    </div>
-</div>
+            <!-- Attendance Content -->
+            <div class="animate-up">
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <div>
+                        <h2 class="h3 text-main mb-1">Attendance Tracker</h2>
+                        <p class="text-muted small mb-0">Monitor student presence, manage daily registers, and analyze trends.</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="/attendance/report" class="btn btn-outline-secondary border-0 bg-white shadow-sm">
+                            <i class="bi bi-file-earmark-check me-2"></i>Attendance Reports
+                        </a>
+                        <a href="/attendance/mark" class="btn btn-primary">
+                            <i class="bi bi-calendar-plus-fill me-2"></i>Mark Attendance
+                        </a>
+                    </div>
+                </div>
 
-<% include ../layouts/footer %>
-<% include ../layouts/close-sidebar %>
+                <!-- Stats Overview -->
+                <div class="row g-4 mb-5">
+                    <div class="col-md-4">
+                        <div class="card p-4 border-0 shadow-sm glass h-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="stats-icon bg-success bg-opacity-10 text-success mb-0">
+                                    <i class="bi bi-check-lg"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted small fw-bold text-uppercase mb-1">Present Today</h6>
+                                    <h4 class="mb-0 text-success fw-bold">92%</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card p-4 border-0 shadow-sm glass h-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="stats-icon bg-warning bg-opacity-10 text-warning mb-0">
+                                    <i class="bi bi-clock-history"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted small fw-bold text-uppercase mb-1">Late Arrivals</h6>
+                                    <h4 class="mb-0 text-warning fw-bold">5%</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card p-4 border-0 shadow-sm glass h-100">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="stats-icon bg-danger bg-opacity-10 text-danger mb-0">
+                                    <i class="bi bi-x-lg"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted small fw-bold text-uppercase mb-1">Absent Today</h6>
+                                    <h4 class="mb-0 text-danger fw-bold">3%</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Classes Attendance List -->
+                <div class="card border-0 shadow-sm overflow-hidden">
+                    <div class="p-4 border-bottom bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Class Attendance Summary</h5>
+                        <p class="mb-0 small text-muted"><i class="bi bi-info-circle me-1"></i> Showing records for <%= new Date().toLocaleDateString('en-GB') %></p>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light bg-opacity-50">
+                                <tr>
+                                    <th class="ps-4 border-0 text-uppercase small text-muted font-monospace py-3">Class / Stream</th>
+                                    <th class="border-0 text-uppercase small text-muted font-monospace py-3">Students</th>
+                                    <th class="border-0 text-uppercase small text-muted font-monospace py-3">Marked Status</th>
+                                    <th class="border-0 text-uppercase small text-muted font-monospace py-3">Daily Avg</th>
+                                    <th class="pe-4 border-0 text-uppercase small text-muted font-monospace py-3 text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (classes && classes.length > 0) { %>
+                                    <% classes.forEach(cls => { %>
+                                        <tr>
+                                            <td class="ps-4 py-3">
+                                                <div class="fw-bold text-main"><%= cls.className %> - <%= cls.section %></div>
+                                                <div class="small text-muted italic">Teacher: <%= cls.classTeacher ? cls.classTeacher.firstName : 'N/A' %></div>
+                                            </td>
+                                            <td class="py-3">
+                                                <span class="badge bg-light text-muted border px-2 py-1"><%= cls.students ? cls.students.length : 0 %> Students</span>
+                                            </td>
+                                            <td class="py-3">
+                                                <span class="badge rounded-pill bg-success bg-opacity-10 text-success px-3 border border-success border-opacity-25" style="font-size: 10px;">COMPLETED</span>
+                                            </td>
+                                            <td class="py-3">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div class="progress flex-grow-1 bg-light" style="height: 6px; border-radius: 10px; width: 80px;">
+                                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 85%;"></div>
+                                                    </div>
+                                                    <span class="small fw-bold text-main">85%</span>
+                                                </div>
+                                            </td>
+                                            <td class="pe-4 py-3 text-end">
+                                                <a href="/attendance/mark?classId=<%= cls._id %>" class="btn btn-light btn-sm rounded-8 border px-3">
+                                                    <i class="bi bi-pencil-square me-1"></i>Update
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="5" class="text-center py-5">
+                                            <div class="text-muted d-flex flex-column align-items-center opacity-50">
+                                                <i class="bi bi-calendar2-range display-3 mb-3"></i>
+                                                <p class="mb-0">No classes found to track attendance.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sidebar Toggle for Mobile
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('show');
+            });
+        }
+    </script>
+</body>
+</html>

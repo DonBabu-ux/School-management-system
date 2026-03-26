@@ -1,44 +1,136 @@
-<%- include('../layouts/header') %>
-<%- include('../layouts/sidebar') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EduSmart</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-main">
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <%- include('../layouts/sidebar') %>
 
-<div class="row mb-3">
-    <div class="col-md-6">
-        <h2>Edit Teacher</h2>
-    </div>
-    <div class="col-md-6 text-end">
-        <a href="/teachers" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</a>
-    </div>
-</div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <%- include('../layouts/header') %>
 
-<div class="card">
-    <div class="card-body">
-        <% if (error) { %>
-            <div class="alert alert-danger"><%= error %></div>
-        <% } %>
-        <form action="/teachers/<%= teacher._id %>/edit" method="POST">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="firstName" class="form-label">First Name</label>
-                    <input type="text" name="firstName" id="firstName" class="form-control" value="<%= teacher.firstName %>" required>
+            <!-- Edit Teacher Form Content -->
+            <div class="animate-up">
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <div>
+                        <h2 class="h3 text-main mb-1">Modify Faculty Record</h2>
+                        <p class="text-muted small mb-0">Update personal and professional details for <%= teacher.firstName %> <%= teacher.lastName %></p>
+                    </div>
+                    <a href="/teachers/<%= teacher._id %>" class="btn btn-outline-secondary border-0 bg-white shadow-sm">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Profile
+                    </a>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label for="lastName" class="form-label">Last Name</label>
-                    <input type="text" name="lastName" id="lastName" class="form-control" value="<%= teacher.lastName %>" required>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" name="email" id="email" class="form-control" value="<%= teacher.email %>">
-            </div>
-            <div class="mb-3">
-                <label for="phone" class="form-label">Phone Number</label>
-                <input type="text" name="phone" id="phone" class="form-control" value="<%= teacher.phone %>">
-            </div>
-            <button class="btn btn-primary">Update</button>
-            <a href="/teachers/<%= teacher._id %>/delete" class="btn btn-danger ms-2" onclick="return confirm('Are you sure?');">Delete</a>
-        </form>
-    </div>
-</div>
 
-<%- include('../layouts/footer') %>
-<%- include('../layouts/close-sidebar') %>
+                <% if (error) { %>
+                    <div class="alert alert-danger mb-4 shadow-sm border-0 d-flex align-items-center rounded-16 p-3 animate-up">
+                        <i class="bi bi-exclamation-triangle-fill me-3 fs-3"></i>
+                        <div class="small fw-medium">Oops! <%= error %></div>
+                    </div>
+                <% } %>
+
+                <form action="/teachers/<%= teacher._id %>/edit" method="POST" enctype="multipart/form-data">
+                    <div class="row g-4">
+                        <!-- Main Content Selection -->
+                        <div class="col-lg-8">
+                            <div class="card border-0 shadow-sm p-4 mb-4">
+                                <h6 class="mb-4 text-muted small text-uppercase fw-bold"><i class="bi bi-person-lines-fill me-2"></i>Core Information</h6>
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">First Name</label>
+                                        <input type="text" name="firstName" class="form-control bg-light border-0 py-3" value="<%= teacher.firstName %>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Last Name</label>
+                                        <input type="text" name="lastName" class="form-control bg-light border-0 py-3" value="<%= teacher.lastName %>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Official Email</label>
+                                        <input type="email" name="email" class="form-control bg-light border-0 py-3" value="<%= teacher.email %>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Contact Phone</label>
+                                        <input type="tel" name="phone" class="form-control bg-light border-0 py-3" value="<%= teacher.phone || teacher.phoneNumber %>" required>
+                                    </div>
+                                    <div class="col-12 mt-4">
+                                        <label class="form-label fw-bold small text-muted">Residential Address</label>
+                                        <textarea name="address" class="form-control bg-light border-0" rows="3"><%= teacher.address %></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary px-5 py-3 rounded-12 shadow-md fw-bold w-100">
+                                    Update Faculty Member
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar Columns (ID/Media) -->
+                        <div class="col-lg-4">
+                            <div class="card border-0 shadow-sm p-4 mb-4 text-center">
+                                <h6 class="mb-4 text-muted small text-uppercase fw-bold">Employee Media</h6>
+                                <div class="mx-auto position-relative" style="width: 140px; height: 140px;">
+                                    <img src="/uploads/<%= teacher.profilePicture || 'default-avatar.png' %>" 
+                                         class="rounded-circle shadow-md border w-100 h-100 object-fit-cover bg-white" id="avatarPreview">
+                                    <button type="button" class="btn btn-primary btn-icon position-absolute bottom-0 end-0 rounded-circle" onclick="document.getElementById('profilePicture').click()">
+                                        <i class="bi bi-camera-fill"></i>
+                                    </button>
+                                </div>
+                                <input type="file" name="profilePicture" id="profilePicture" class="d-none" onchange="previewImage(event)">
+                                <div class="mt-4 p-3 bg-light rounded-12 text-start">
+                                    <div class="small fw-bold text-muted text-uppercase mb-1" style="font-size: 9px;">Employee ID</div>
+                                    <div class="fw-bold text-main h5 mb-0"><%= teacher.employeeId %></div>
+                                </div>
+                            </div>
+
+                            <a href="/teachers/<%= teacher._id %>/delete" class="btn btn-light w-100 p-3 rounded-12 border text-danger fw-bold shadow-sm" onclick="return confirm('WARNING: Are you sure you want to delete this faculty record permanently?')">
+                                <i class="bi bi-trash-fill me-2"></i>Delete Record
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function previewImage(event) {
+            const preview = document.getElementById('avatarPreview');
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onloadend = function() {
+                preview.src = reader.result;
+            }
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Sidebar Toggle for Mobile
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('show');
+            });
+        }
+    </script>
+</body>
+</html>

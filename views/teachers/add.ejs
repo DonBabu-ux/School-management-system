@@ -1,40 +1,148 @@
-<%- include('../layouts/header') %>
-<%- include('../layouts/sidebar') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EduSmart</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-main">
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <%- include('../layouts/sidebar') %>
 
-<div class="row mb-3">
-    <div class="col-md-6">
-        <h2>Add Teacher</h2>
-    </div>
-    <div class="col-md-6 text-end">
-        <a href="/teachers" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</a>
-    </div>
-</div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <%- include('../layouts/header') %>
 
-<div class="card">
-    <div class="card-body">
-        <form action="/teachers/add" method="POST">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="firstName" class="form-label">First Name</label>
-                    <input type="text" name="firstName" id="firstName" class="form-control" required>
+            <!-- Add Teacher Form Content -->
+            <div class="animate-up">
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <div>
+                        <h2 class="h3 text-main mb-1">New Teacher Onboarding</h2>
+                        <p class="text-muted small mb-0">Carefully register new faculty members to maintain educational standards.</p>
+                    </div>
+                    <a href="/teachers" class="btn btn-outline-secondary border-0 bg-white shadow-sm">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Faculty
+                    </a>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label for="lastName" class="form-label">Last Name</label>
-                    <input type="text" name="lastName" id="lastName" class="form-control" required>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" name="email" id="email" class="form-control">
-            </div>
-            <div class="mb-3">
-                <label for="phone" class="form-label">Phone Number</label>
-                <input type="text" name="phone" id="phone" class="form-control">
-            </div>
-            <button class="btn btn-primary">Save Teacher</button>
-        </form>
-    </div>
-</div>
 
-<%- include('../layouts/footer') %>
-<%- include('../layouts/close-sidebar') %>
+                <% if (error) { %>
+                    <div class="alert alert-danger mb-4 shadow-sm border-0 d-flex align-items-center rounded-16 p-3">
+                        <i class="bi bi-exclamation-triangle-fill me-3 fs-3"></i>
+                        <div class="small fw-medium">Oops! <%= error %></div>
+                    </div>
+                <% } %>
+
+                <form action="/teachers/add" method="POST" enctype="multipart/form-data">
+                    <div class="row g-4">
+                        <div class="col-lg-8">
+                            <!-- Professional Credentials -->
+                            <div class="card border-0 shadow-sm p-4 mb-4">
+                                <h6 class="mb-4 text-muted small text-uppercase fw-bold"><i class="bi bi-mortarboard me-2"></i>Professional Credentials</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">First Name</label>
+                                        <input type="text" name="firstName" class="form-control bg-light border-0 py-3" required placeholder="Dr./Mr./Ms. First Name">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Last Name</label>
+                                        <input type="text" name="lastName" class="form-control bg-light border-0 py-3" required placeholder="Surname">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Core Department</label>
+                                        <select name="department" class="form-select bg-light border-0 py-3">
+                                            <option value="Science">Science & Mathematics</option>
+                                            <option value="Languages">Languages & Literature</option>
+                                            <option value="Humanities">Humanities & Arts</option>
+                                            <option value="Sports">Physical Education & Sports</option>
+                                            <option value="Tech">Technical Studies</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Designation</label>
+                                        <select name="designation" class="form-select bg-light border-0 py-3">
+                                            <option value="Lecturer">Lecturer</option>
+                                            <option value="Assistant Tutor">Assistant Tutor</option>
+                                            <option value="Head of Department">Head of Department</option>
+                                            <option value="Principal">Principal / Admin Staff</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 mt-4">
+                                        <label class="form-label fw-bold small text-muted">Short Professional Bio</label>
+                                        <textarea name="bio" class="form-control bg-light border-0" rows="4" placeholder="Briefly describe the teacher's qualifications, experience, and key skills..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Secure Contact Info -->
+                            <div class="card border-0 shadow-sm p-4 h-auto">
+                                <h6 class="mb-4 text-muted small text-uppercase fw-bold"><i class="bi bi-person-lines-fill me-2"></i>Contact Details</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Official Email Address</label>
+                                        <input type="email" name="email" class="form-control bg-light border-0 py-3" placeholder="teacher@edu-smart.com" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Direct Mobile Phone</label>
+                                        <input type="tel" name="phone" class="form-control bg-light border-0 py-3" placeholder="+254 7xx xxx xxx" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 text-end">
+                                <button type="submit" class="btn btn-primary px-5 py-3 rounded-12 shadow-md fw-bold">Register to Faculty</button>
+                            </div>
+                        </div>
+
+                        <!-- Side Meta -->
+                        <div class="col-lg-4">
+                            <div class="card border-0 shadow-sm p-4 mb-4 text-center">
+                                <h6 class="mb-4 text-muted small text-uppercase fw-bold">Faculty Profile Image</h6>
+                                <div class="mx-auto border-4 border-white shadow-soft rounded-circle mb-4 overflow-hidden" style="width: 140px; height: 140px; border: 5px solid #fff; box-shadow: var(--shadow-md);">
+                                    <img id="avatar-preview" src="/uploads/default-avatar.png" class="w-100 h-100 object-fit-cover">
+                                </div>
+                                <input type="file" name="profilePicture" class="form-control border-0 bg-light p-2 small transition-all mb-3 text-muted" accept="image/*" onchange="previewAvatar(event)">
+                                <p class="small text-muted italic">Clear passport-style images with solid backgrounds are recommended for official records.</p>
+                            </div>
+
+                            <div class="card border-0 shadow-sm p-4 bg-info bg-opacity-10">
+                                <div class="d-flex align-items-center gap-3">
+                                    <i class="bi bi-info-circle text-info fs-3"></i>
+                                    <div class="small fw-medium text-info">An automated welcome email with login credentials will be sent to the teacher's email address upon registration.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function previewAvatar(event) {
+            const preview = document.getElementById('avatar-preview');
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onloadend = function() { preview.src = reader.result; }
+            if (file) { reader.readAsDataURL(file); }
+        }
+        
+        // Sidebar Toggle for Mobile
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => { sidebar.classList.toggle('show'); });
+        }
+    </script>
+</body>
+</html>

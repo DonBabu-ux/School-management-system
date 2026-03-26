@@ -9,23 +9,24 @@
     "test": "node test-db.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^7.5.0",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
-    "dotenv": "^16.3.1",
-    "express-session": "^1.17.3",
     "connect-mongo": "^5.1.0",
-    "ejs": "^3.1.9",
-    "multer": "^2.0.0-rc.1",
-    "express-validator": "^7.0.1",
-    "nodemailer": "^6.9.7",
     "cors": "^2.8.5",
-    "helmet": "^7.1.0",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "exceljs": "^4.4.0",
+    "express": "^4.18.2",
     "express-rate-limit": "^6.10.0",
+    "express-session": "^1.17.3",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
     "moment": "^2.29.4",
-    "pdfkit": "^0.14.0",
-    "exceljs": "^4.4.0"
+    "mongodb": "^7.1.1",
+    "mongoose": "^7.5.0",
+    "multer": "^2.0.0-rc.1",
+    "nodemailer": "^8.0.4",
+    "pdfkit": "^0.14.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

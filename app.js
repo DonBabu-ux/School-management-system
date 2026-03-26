@@ -6,9 +6,11 @@ const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const moment = require('moment');
 require('dotenv').config();
 
 const app = express();
+app.locals.moment = moment; // Make moment available in all templates
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
@@ -19,6 +21,10 @@ const examRoutes = require('./routes/examRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const feesRoutes = require('./routes/feesRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const Stat = require('./models/statModel');
+const Announcement = require('./models/announcementModel');
+const User = require('./models/userModel');
+const Notification = require('./models/notificationModel');
 
 // Security middleware
 app.use(helmet({
@@ -46,24 +52,31 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Session configuration
-app.use(session({
-    secret: process.env.SESSION_SECRET,
+// Session configuration with fallback for development
+const sessionOptions = {
+    secret: process.env.SESSION_SECRET || 'EduSmart-Secret-2026',
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({
-        mongoUrl: process.env.MONGODB_URI,
-        ttl: 24 * 60 * 60,
-        autoRemove: 'native',
-    }),
     cookie: {
-        maxAge: 1000 * 60 * 60 * 24,
+        maxAge: 1000 * 60 * 60 * 24, // 24 hours
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict'
     },
     name: 'school.sid'
-}));
+};
+
+if (process.env.MONGODB_URI) {
+    sessionOptions.store = MongoStore.create({
+        mongoUrl: process.env.MONGODB_URI,
+        ttl: 24 * 60 * 60,
+        autoRemove: 'native',
+    });
+} else {
+    console.warn('⚠️ Warning: MONGODB_URI not found. Using memory store for sessions (sessions will clear on restart).');
+}
+
+app.use(session(sessionOptions));
 
 // View engine setup
 app.set('view engine', 'ejs');
@@ -83,17 +96,45 @@ app.use((req, res, next) => {
 });
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI, {
-    serverSelectionTimeoutMS: 5000,
-    socketTimeoutMS: 45000,
-})
-.then(() => console.log('✅ MongoDB Atlas connected successfully'))
-.catch(err => {
-    console.error('❌ MongoDB connection error:', err);
-    process.exit(1);
+if (!process.env.MONGODB_URI) {
+    console.warn('⚠️ Warning: MONGODB_URI not set. Application will not connect to database.');
+} else {
+    mongoose.connect(process.env.MONGODB_URI, {
+        serverSelectionTimeoutMS: 30000,
+        socketTimeoutMS: 45000,
+    })
+    .then(() => console.log('✅ MongoDB Atlas connected successfully'))
+    .catch(err => {
+        console.error('❌ MongoDB connection error:', err);
+    });
+}
+
+// Global middleware for notifications & user session visibility
+app.use(async (req, res, next) => {
+    res.locals.user = req.session.user || null;
+    if (req.session.userId) {
+        try {
+            res.locals.notifications = await Notification.find({ 
+                $or: [ { userId: req.session.userId }, { userId: null } ] 
+            }).sort({ createdAt: -1 }).limit(5);
+            res.locals.unreadCount = await Notification.countDocuments({ 
+                $or: [ { userId: req.session.userId }, { userId: null } ],
+                isRead: false 
+            });
+        } catch (e) {
+            res.locals.notifications = [];
+            res.locals.unreadCount = 0;
+        }
+    } else {
+        res.locals.notifications = [];
+        res.locals.unreadCount = 0;
+    }
+    next();
 });
 
 // Routes
+const subjectRoutes = require('./routes/subjectRoutes');
+app.use('/subjects', subjectRoutes);
 app.use('/auth', authRoutes);
 app.use('/students', studentRoutes);
 app.use('/teachers', teacherRoutes);
@@ -103,19 +144,64 @@ app.use('/attendance', attendanceRoutes);
 app.use('/fees', feesRoutes);
 app.use('/dashboard', dashboardRoutes);
 
-// expose profile and settings at root as well
+// expose profile and settings at root as well (now securely protected)
 const authController = require('./controllers/authController');
+const authMiddleware = require('./middleware/authMiddleware');
+
+app.use('/profile', authMiddleware); // Protect root profile
 app.get('/profile', authController.getProfile);
 app.post('/profile', authController.updateProfile);
+
+app.use('/settings', authMiddleware); // Protect root settings
 app.get('/settings', authController.getSettings);
 app.post('/settings', authController.updateSettings);
+app.get('/logout', (req, res) => res.redirect('/auth/logout'));
+app.get('/login', (req, res) => res.redirect('/auth/login'));
+// Home route (Landing Page)
+app.get('/', async (req, res) => {
+    try {
+        // Track visit
+        let stats = await Stat.findOne();
+        if (!stats) stats = new Stat();
+        stats.totalVisits += 1;
+        await stats.save();
 
-// Home route
-app.get('/', (req, res) => {
-    if (req.session.userId) {
-        res.redirect('/dashboard');
-    } else {
-        res.redirect('/auth/login');
+        // Fetch announcements
+        const announcements = await Announcement.find({ status: 'published' }).sort({ createdAt: -1 }).limit(3);
+        
+        // Count online (simplified: active users in last 15 mins)
+        const onlineCount = await User.countDocuments({ lastLogin: { $gte: new Date(Date.now() - 15*60*1000) } });
+
+        res.render('landing', {
+            title: 'Welcome to EduSmart',
+            announcements,
+            stats: {
+                visits: stats.totalVisits,
+                online: onlineCount || 1 // At least the current visitor
+            }
+        });
+    } catch (error) {
+        console.error('Landing error:', error);
+        res.render('landing', { title: 'Welcome to EduSmart', announcements: [], stats: { visits: 0, online: 1 } });
+    }
+});
+
+// Legal & Newsletters
+app.get('/terms', (req, res) => res.render('terms', { title: 'Terms and Conditions' }));
+app.get('/privacy', (req, res) => res.render('privacy', { title: 'Privacy Policy' }));
+
+app.post('/subscribe', async (req, res) => {
+    try {
+        const { email } = req.body;
+        let stats = await Stat.findOne();
+        if (!stats) stats = new Stat();
+        if (!stats.newsletterSubscribers.some(s => s.email === email)) {
+            stats.newsletterSubscribers.push({ email });
+            await stats.save();
+        }
+        res.json({ success: true, message: 'Institutional newsletter subscription successful.' });
+    } catch (e) {
+        res.status(500).json({ success: false });
     }
 });
 

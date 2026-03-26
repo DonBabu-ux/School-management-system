@@ -1,29 +1,160 @@
-<% include ../layouts/header %>
-<% include ../layouts/sidebar %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EduSmart</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .receipt-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .receipt-header {
+            border-bottom: 2px dashed #e2e8f0;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .receipt-footer {
+            border-top: 2px dashed #e2e8f0;
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .receipt-container, .receipt-container * {
+                visibility: visible;
+            }
+            .receipt-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                max-width: 100%;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-main">
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <%- include('../layouts/sidebar') %>
 
-<div class="row mb-3">
-    <div class="col-md-6">
-        <h2>Invoice</h2>
-    </div>
-    <div class="col-md-6 text-end">
-        <a href="/fees" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</a>
-    </div>
-</div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <%- include('../layouts/header') %>
 
-<div class="card">
-    <div class="card-body">
-        <% if (fee) { %>
-            <p><strong>Student:</strong> <%= fee.student.fullName %></p>
-            <p><strong>Admission No:</strong> <%= fee.student.admissionNumber %></p>
-            <p><strong>Date:</strong> <%= fee.date.toLocaleDateString() %></p>
-            <p><strong>Amount:</strong> ₹<%= fee.amount %></p>
-            <p><strong>Status:</strong> <%= fee.status %></p>
-            <p><strong>Description:</strong> <%= fee.description || '-' %></p>
-        <% } else { %>
-            <p class="text-muted">Invoice not available.</p>
-        <% } %>
-    </div>
-</div>
+            <!-- Invoice Content -->
+            <div class="animate-up py-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 receipt-container" style="max-width: 600px; margin: 0 auto;">
+                    <a href="/fees" class="btn btn-outline-secondary border-0 bg-white shadow-sm no-print">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Records
+                    </a>
+                    <button onclick="window.print()" class="btn btn-primary shadow-sm no-print">
+                        <i class="bi bi-printer me-2"></i>Print Receipt
+                    </button>
+                </div>
 
-<% include ../layouts/footer %>
-<% include ../layouts/close-sidebar %>
+                <div class="card border-0 shadow-lg bg-white receipt-container p-5" style="border-radius: 24px;">
+                    <% if (fee) { %>
+                        <!-- Receipt Header -->
+                        <div class="receipt-header text-center">
+                            <div class="mb-3 d-flex align-items-center justify-content-center mx-auto bg-primary bg-opacity-10 text-primary rounded-circle" style="width: 70px; height: 70px; font-size: 2rem;">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                            <h3 class="fw-bold text-main mb-1">EduSmart Official Receipt</h3>
+                            <p class="text-muted small mb-0 font-monospace">Receipt No: <%= fee.receiptNo || ('RCP' + fee._id.toString().slice(-6).toUpperCase()) %></p>
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 mt-3 px-3 py-2 rounded-pill">PAYMENT SUCCESSFUL</span>
+                        </div>
+
+                        <!-- Payment Details -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-6">
+                                <label class="tiny fw-bold text-muted text-uppercase mb-1 d-block">Student Name</label>
+                                <div class="fw-bold text-main"><%= fee.student ? fee.student.fullName : 'Unknown Student' %></div>
+                            </div>
+                            <div class="col-6 text-end">
+                                <label class="tiny fw-bold text-muted text-uppercase mb-1 d-block">Admission Number</label>
+                                <div class="fw-bold text-main font-monospace"><%= fee.student ? fee.student.admissionNumber : 'N/A' %></div>
+                            </div>
+                            
+                            <div class="col-6">
+                                <label class="tiny fw-bold text-muted text-uppercase mb-1 d-block">Academic Period</label>
+                                <div class="fw-medium text-dark"><%= fee.term || 'Term 1' %>, <%= fee.academicYear || '2024-2025' %></div>
+                            </div>
+                            <div class="col-6 text-end">
+                                <label class="tiny fw-bold text-muted text-uppercase mb-1 d-block">Date of Payment</label>
+                                <div class="fw-medium text-dark"><%= fee.date ? fee.date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : new Date().toLocaleDateString() %></div>
+                            </div>
+                        </div>
+
+                        <!-- Amount Breakdown -->
+                        <div class="bg-light rounded-16 p-4 mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-secondary border-opacity-10">
+                                <span class="fw-bold text-muted small text-uppercase">Description</span>
+                                <span class="fw-bold text-muted small text-uppercase">Amount</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <div class="fw-bold text-main"><%= fee.description || 'General Tuition Fee' %></div>
+                                    <div class="small text-muted">Paid via: <%= fee.paymentMethod || 'Cash' %></div>
+                                </div>
+                                <div class="fw-bold text-dark font-monospace">KES <%= fee.amount ? fee.amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00' %></div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary border-opacity-10 mt-1">
+                                <span class="fw-bold text-main h5 mb-0">Total Paid</span>
+                                <span class="fw-bold text-primary h4 mb-0 font-monospace">KES <%= fee.amount ? fee.amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00' %></span>
+                            </div>
+                        </div>
+
+                        <!-- Receipt Footer -->
+                        <div class="receipt-footer d-flex justify-content-between align-items-center">
+                            <div>
+                                <label class="tiny fw-bold text-muted text-uppercase mb-1 d-block">Served By (Bursar)</label>
+                                <div class="small fw-bold text-main"><%= fee.collectedBy ? fee.collectedBy.firstName + ' ' + fee.collectedBy.lastName : (user ? user.firstName + ' ' + user.lastName : 'Admin') %></div>
+                            </div>
+                            <div class="text-end">
+                                <div class="small text-muted italic">Thank you for your payment.<br>Keep this receipt for your records.</div>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-5">
+                            <i class="bi bi-exclamation-circle display-4 text-muted opacity-25 mb-3"></i>
+                            <h4>Receipt Not Found</h4>
+                            <p class="text-muted">The requested payment record could not be located.</p>
+                            <a href="/fees" class="btn btn-primary px-4 mt-3">Return to Fees</a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sidebar Toggle for Mobile
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('show');
+            });
+        }
+    </script>
+</body>
+</html>

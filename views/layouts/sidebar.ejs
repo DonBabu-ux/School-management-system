@@ -1,34 +1,81 @@
-<div class="row g-0">
-    <div class="col-md-2 bg-dark" style="min-height: calc(100vh - 56px);">
-        <div class="list-group list-group-flush bg-dark">
-            <a href="/dashboard" 
-               class="list-group-item list-group-item-action bg-dark text-white border-0 <%= currentUrl === '/dashboard' ? 'active' : '' %>">
-                <i class="fas fa-tachometer-alt me-3"></i> Dashboard
-            </a>
-            <a href="/students" 
-               class="list-group-item list-group-item-action bg-dark text-white border-0 <%= currentUrl && currentUrl.startsWith('/students') ? 'active' : '' %>">
-                <i class="fas fa-user-graduate me-3"></i> Students
-            </a>
-            <a href="/teachers" 
-               class="list-group-item list-group-item-action bg-dark text-white border-0 <%= currentUrl && currentUrl.startsWith('/teachers') ? 'active' : '' %>">
-                <i class="fas fa-chalkboard-teacher me-3"></i> Teachers
-            </a>
-            <a href="/classes" 
-               class="list-group-item list-group-item-action bg-dark text-white border-0 <%= currentUrl && currentUrl.startsWith('/classes') ? 'active' : '' %>">
-                <i class="fas fa-door-open me-3"></i> Classes
-            </a>
-            <a href="/exams" 
-               class="list-group-item list-group-item-action bg-dark text-white border-0 <%= currentUrl && currentUrl.startsWith('/exams') ? 'active' : '' %>">
-                <i class="fas fa-pencil-alt me-3"></i> Exams
-            </a>
-            <a href="/attendance" 
-               class="list-group-item list-group-item-action bg-dark text-white border-0 <%= currentUrl && currentUrl.startsWith('/attendance') ? 'active' : '' %>">
-                <i class="fas fa-calendar-check me-3"></i> Attendance
-            </a>
-            <a href="/fees" 
-               class="list-group-item list-group-item-action bg-dark text-white border-0 <%= currentUrl && currentUrl.startsWith('/fees') ? 'active' : '' %>">
-                <i class="fas fa-money-bill-wave me-3"></i> Fees
+<!-- Sidebar -->
+<nav class="sidebar glass" id="sidebar">
+    <div class="sidebar-header">
+        <div class="stats-icon bg-primary text-white mb-0" style="width: 40px; height: 40px;">
+            <i class="bi bi-mortarboard-fill"></i>
+        </div>
+        <span class="sidebar-logo">EduSmart</span>
+    </div>
+    
+    <div class="sidebar-nav">
+        <a class="nav-link <%= currentUrl === '/dashboard' ? 'active' : '' %>" href="/dashboard">
+            <i class="bi bi-grid-1x2-fill"></i>
+            <span>Dashboard</span>
+        </a>
+        
+        <div class="nav-section-title px-3 mt-4 mb-2 text-muted small text-uppercase fw-bold">Management</div>
+        
+        <a class="nav-link <%= currentUrl.startsWith('/students') ? 'active' : '' %>" href="/students">
+            <i class="bi bi-people-fill"></i>
+            <span>Students</span>
+        </a>
+        
+        <a class="nav-link <%= currentUrl.startsWith('/teachers') ? 'active' : '' %>" href="/teachers">
+            <i class="bi bi-person-badge-fill"></i>
+            <span>Teachers</span>
+        </a>
+
+        <a class="nav-link <%= currentUrl.startsWith('/subjects') ? 'active' : '' %>" href="/subjects">
+            <i class="bi bi-book-half"></i>
+            <span>Subjects</span>
+        </a>
+        
+        <% if (user && user.role === 'admin') { %>
+        <a class="nav-link <%= currentUrl === '/dashboard/users' ? 'active' : '' %>" href="/dashboard/users">
+            <i class="bi bi-person-gear"></i>
+            <span>User Management</span>
+        </a>
+        
+        <a class="nav-link <%= currentUrl === '/dashboard/tickets' ? 'active' : '' %>" href="/dashboard/tickets">
+            <i class="bi bi-shield-lock-fill"></i>
+            <span>Support Requests</span>
+        </a>
+
+        <a class="nav-link text-danger fw-bold <%= currentUrl.startsWith('/dashboard/pigeon') ? 'active' : '' %>" href="/dashboard/pigeon">
+            <i class="bi bi-box-seam-fill"></i>
+            <span>The Pigeon Hole</span>
+        </a>
+        <% } %>
+        
+        <a class="nav-link <%= currentUrl.startsWith('/classes') ? 'active' : '' %>" href="/classes">
+            <i class="bi bi-journal-check"></i>
+            <span>Classes</span>
+        </a>
+        
+        <div class="nav-section-title px-3 mt-4 mb-2 text-muted small text-uppercase fw-bold">Academic</div>
+        
+        <a class="nav-link <%= currentUrl.startsWith('/exams') ? 'active' : '' %>" href="/exams">
+            <i class="bi bi-pencil-square"></i>
+            <span>Exams</span>
+        </a>
+        
+        <a class="nav-link <%= currentUrl.startsWith('/attendance') ? 'active' : '' %>" href="/attendance">
+            <i class="bi bi-calendar2-check-fill"></i>
+            <span>Attendance</span>
+        </a>
+        
+        <div class="nav-section-title px-3 mt-4 mb-2 text-muted small text-uppercase fw-bold">Accounts</div>
+        
+        <a class="nav-link <%= currentUrl.startsWith('/fees') ? 'active' : '' %>" href="/fees">
+            <i class="bi bi-cash-stack"></i>
+            <span>Fee Structure</span>
+        </a>
+
+        <div class="mt-auto px-3 border-top pt-4" style="margin-top: 40px !important;">
+            <a class="nav-link text-danger" href="/auth/logout">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout</span>
             </a>
         </div>
     </div>
-    <div class="col-md-10 p-4">
+</nav>

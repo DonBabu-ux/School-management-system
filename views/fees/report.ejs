@@ -1,72 +1,140 @@
-<% include ../layouts/header %>
-<% include ../layouts/sidebar %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EduSmart</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-main">
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <%- include('../layouts/sidebar') %>
 
-<div class="row mb-3">
-    <div class="col-md-6">
-        <h2>Fee Report</h2>
-    </div>
-    <div class="col-md-6 text-end">
-        <a href="/fees" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</a>
-    </div>
-</div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <%- include('../layouts/header') %>
 
-<div class="card mb-4">
-    <div class="card-body">
-        <form action="/fees/report" method="POST" class="row g-3">
-            <div class="col-md-4">
-                <label for="classId" class="form-label">Class</label>
-                <select name="classId" id="classId" class="form-control">
-                    <option value="">All classes</option>
-                    <% classes.forEach(c => { %>
-                        <option value="<%= c._id %>" <%= classId == c._id ? 'selected' : '' %>><%= c.className %> <%= c.section %></option>
-                    <% }) %>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="startDate" class="form-label">From</label>
-                <input type="date" name="startDate" id="startDate" class="form-control" value="<%= startDate || '' %>">
-            </div>
-            <div class="col-md-3">
-                <label for="endDate" class="form-label">To</label>
-                <input type="date" name="endDate" id="endDate" class="form-control" value="<%= endDate || '' %>">
-            </div>
-            <div class="col-md-2 align-self-end">
-                <button class="btn btn-primary">Generate</button>
-            </div>
-        </form>
-    </div>
-</div>
+            <!-- Fee Report Content -->
+            <div class="animate-up">
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <div>
+                        <h2 class="h3 text-main mb-1">Financial Performance Report</h2>
+                        <p class="text-muted small mb-0">Monitor institutional revenue, fee collection trends, and outstanding dues across class streams.</p>
+                    </div>
+                </div>
 
-<div class="card">
-    <div class="card-body">
-        <% if (report && report.length) { %>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Student</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% report.forEach(r => { %>
-                        <tr>
-                            <td><%= r.date.toLocaleDateString() %></td>
-                            <td><%= r.student ? r.student.fullName : '' %></td>
-                            <td><%= r.amount %></td>
-                            <td><%= r.status %></td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        <% } else if (report) { %>
-            <p class="text-muted">No records found for the selected period.</p>
-        <% } else { %>
-            <p class="text-muted">Use the form above to generate a report.</p>
-        <% } %>
-    </div>
-</div>
+                <!-- Report Filter -->
+                <div class="card border-0 shadow-sm p-4 mb-4">
+                    <form action="/fees/report" method="POST" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold small text-muted">Class Stream</label>
+                            <select name="classId" class="form-select bg-light border-0 py-2">
+                                <option value="all">All Classes & Sections</option>
+                                <% classes.forEach(cls => { %>
+                                    <option value="<%= cls._id %>" <%= typeof classId !== 'undefined' && classId == cls._id ? 'selected' : '' %>><%= cls.className %> - <%= cls.section %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold small text-muted">Billing Cycle Start</label>
+                            <input type="date" name="startDate" class="form-control bg-light border-0 py-2" value="<%= typeof startDate !== 'undefined' ? startDate : '' %>" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold small text-muted">Billing Cycle End</label>
+                            <input type="date" name="endDate" class="form-control bg-light border-0 py-2" value="<%= typeof endDate !== 'undefined' ? endDate : '' %>" required>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100 py-2 shadow-md fw-bold">Generate Analytics</button>
+                        </div>
+                    </form>
+                </div>
 
-<% include ../layouts/footer %>
-<% include ../layouts/close-sidebar %>
+                <!-- Report Results -->
+                <% if (typeof report !== 'undefined' && report && report.length > 0) { %>
+                    <div class="card border-0 shadow-sm overflow-hidden animate-up">
+                        <div class="p-4 bg-white border-bottom d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Revenue Logs: <span class="text-primary fw-bold font-monospace small"><%= startDate %> to <%= endDate %></span></h5>
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 border-0 bg-light" onclick="window.print()">
+                                <i class="bi bi-printer me-2"></i>Export Summary
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-light bg-opacity-50">
+                                    <tr>
+                                        <th class="ps-4 border-0 text-uppercase small text-muted font-monospace py-3">Student info</th>
+                                        <th class="border-0 text-uppercase small text-muted font-monospace py-3">Transaction Date</th>
+                                        <th class="border-0 text-uppercase small text-muted font-monospace py-3">Revenue Category</th>
+                                        <th class="pe-4 border-0 text-uppercase small text-muted font-monospace py-3 text-end">Amount Paid</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% let total = 0; %>
+                                    <% report.forEach(record => { %>
+                                        <% total += record.amount || 0; %>
+                                        <tr>
+                                            <td class="ps-4 py-3">
+                                                <div class="fw-bold small text-main"><%= record.student ? record.student.firstName + ' ' + record.student.lastName : 'N/A' %></div>
+                                                <div class="small text-muted italic">ID: <%= record.student ? record.student.admissionNumber : 'N/A' %></div>
+                                            </td>
+                                            <td class="py-3">
+                                                <span class="small text-muted fw-bold"><i class="bi bi-calendar3 me-2"></i><%= new Date(record.date || record.createdAt).toLocaleDateString() %></span>
+                                            </td>
+                                            <td class="py-3">
+                                                <span class="badge bg-primary bg-opacity-10 text-primary border px-3" style="font-size: 10px;">
+                                                    <%= record.description ? record.description.toUpperCase() : 'GENERAL FEES' %>
+                                                </span>
+                                            </td>
+                                            <td class="pe-4 py-3 text-end">
+                                                <div class="h6 mb-0 fw-bold text-main font-monospace">KSh <%= record.amount.toLocaleString() %></div>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                    <tr class="bg-primary bg-opacity-5">
+                                        <td colspan="3" class="ps-4 py-3 fw-bold text-main text-uppercase small font-monospace">Cumulative Institutional Revenue</td>
+                                        <td class="pe-4 py-3 text-end">
+                                            <div class="h5 mb-0 fw-bold text-primary font-monospace">KSh <%= total.toLocaleString() %></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                <% } else if (typeof report !== 'undefined') { %>
+                    <div class="card border-0 shadow-sm p-5 text-center bg-light">
+                        <i class="bi bi-credit-card-2-front display-3 opacity-10 mb-3 text-danger"></i>
+                        <p class="text-muted fw-bold mb-0">No financial transactions recorded for the selected billing cycle.</p>
+                    </div>
+                <% } else { %>
+                    <div class="card border-0 shadow-sm p-5 text-center">
+                        <i class="bi bi-safe2 display-3 opacity-10 mb-3 text-primary"></i>
+                        <h4 class="text-main fw-bold text-uppercase">Financial Analytics Hub</h4>
+                        <p class="text-muted small mb-0 px-5">Institutional financial oversight requires parameter-driven report generation. Please select a billing period to visualize revenue distribution metrics across the school network.</p>
+                    </div>
+                <% } %>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sidebar Toggle for Mobile
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('show');
+            });
+        }
+    </script>
+</body>
+</html>

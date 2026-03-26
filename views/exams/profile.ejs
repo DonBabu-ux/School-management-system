@@ -1,28 +1,127 @@
-<% include ../layouts/header %>
-<% include ../layouts/sidebar %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EduSmart</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-main">
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <%- include('../layouts/sidebar') %>
 
-<div class="row mb-3">
-    <div class="col-md-6">
-        <h2><%= exam.examName %></h2>
-    </div>
-    <div class="col-md-6 text-end">
-        <a href="/exams" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</a>
-    </div>
-</div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <%- include('../layouts/header') %>
 
-<div class="card">
-    <div class="card-body">
-        <p><strong>Type:</strong> <%= exam.examType %></p>
-        <p><strong>Class:</strong> <%= exam.class ? exam.class.className + ' ' + exam.class.section : '' %></p>
-        <p><strong>Subject:</strong> <%= exam.subject ? exam.subject.name : '' %></p>
-        <p><strong>Date:</strong> <%= exam.date.toLocaleDateString() %></p>
-        <p><strong>Time:</strong> <%= exam.startTime || '' %> - <%= exam.endTime || '' %></p>
-        <p><strong>Total Marks:</strong> <%= exam.totalMarks %></p>
-        <p><strong>Passing Marks:</strong> <%= exam.passingMarks || '-' %></p>
-        <p><strong>Room:</strong> <%= exam.room || '-' %></p>
-        <p><strong>Invigilator:</strong> <%= exam.invigilator ? exam.invigilator.firstName + ' ' + exam.invigilator.lastName : '-' %></p>
-    </div>
-</div>
+            <!-- Exam Profile Content -->
+            <div class="animate-up">
+                <div class="d-flex justify-content-between align-items-end mb-4 bg-primary bg-opacity-10 p-5 rounded-32 shadow-soft">
+                    <div>
+                        <div class="badge bg-primary bg-opacity-25 text-primary mb-2 px-3 rounded-pill fw-bold" style="font-size: 11px;">
+                            <%= exam.examType.toUpperCase() %> ASSESSMENT
+                        </div>
+                        <h2 class="h3 text-main mb-1 fw-bold"><%= exam.examName %></h2>
+                        <div class="d-flex gap-4 mt-3 small text-muted">
+                            <span class="fw-bold"><i class="bi bi-calendar3 me-2"></i><%= new Date(exam.date).toLocaleDateString('en-GB') %></span>
+                            <span class="fw-bold"><i class="bi bi-geo-alt me-2"></i>Invigilation: <%= exam.invigilator ? exam.invigilator.firstName : 'Unassigned' %></span>
+                            <span class="fw-bold"><i class="bi bi-person-check me-1"></i>Class: <%= exam.class ? exam.class.className : 'N/A' %></span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="/exams/<%= exam._id %>/results" class="btn btn-primary rounded-12 px-4 shadow-md">
+                            <i class="bi bi-award me-2"></i>Manage Results
+                        </a>
+                        <a href="/exams/<%= exam._id %>/edit" class="btn btn-white border rounded-12 shadow-sm px-4">
+                            <i class="bi bi-pencil me-2"></i>Edit Schedule
+                        </a>
+                    </div>
+                </div>
 
-<% include ../layouts/footer %>
-<% include ../layouts/close-sidebar %>
+                <div class="row g-4 mb-5">
+                    <div class="col-md-3">
+                        <div class="card p-4 border-0 shadow-sm glass text-center h-100">
+                            <h6 class="text-muted small fw-bold text-uppercase mb-3">Total Score</h6>
+                            <h2 class="mb-0 text-primary fw-bold font-monospace"><%= exam.totalMarks %></h2>
+                            <p class="small text-muted mb-0 italic mt-2">Maximum Points</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card p-4 border-0 shadow-sm glass text-center h-100 border-start border-warning border-4">
+                            <h6 class="text-muted small fw-bold text-uppercase mb-3">Passing Grade</h6>
+                            <h2 class="mb-0 text-warning fw-bold font-monospace"><%= exam.passingMarks || 40 %></h2>
+                            <p class="small text-muted mb-0 italic mt-2">Minimum Threshold</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card p-4 border-0 shadow-sm glass text-center h-100">
+                            <h6 class="text-muted small fw-bold text-uppercase mb-3">Assigned Room</h6>
+                            <h2 class="mb-0 text-main fw-bold"><%= exam.room || 'HALL A' %></h2>
+                            <p class="small text-muted mb-0 italic mt-2">Venue Setting</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card p-4 border-0 shadow-sm glass text-center h-100 border-start border-info border-4">
+                            <h6 class="text-muted small fw-bold text-uppercase mb-3">Time Window</h6>
+                            <h2 class="mb-0 text-info fw-bold font-monospace small"><%= exam.startTime || '09:00' %>-<%= exam.endTime || '11:00' %></h2>
+                            <p class="small text-muted mb-0 italic mt-2">Session Duratiom</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm p-4 animate-up bg-white rounded-24">
+                    <h6 class="mb-4 text-muted small text-uppercase fw-bold"><i class="bi bi-info-circle me-2"></i>Institutional Examination Guidelines</h6>
+                    <div class="row g-5">
+                        <div class="col-md-7">
+                            <div class="p-4 bg-light rounded-24">
+                                <ul class="list-unstyled mb-0 d-grid gap-3 small text-muted">
+                                    <li class="d-flex align-items-start gap-3">
+                                        <i class="bi bi-check-circle-fill text-success pt-1"></i>
+                                        <span>Candidate identification must be verified by the principal invigilator prior to session commencement.</span>
+                                    </li>
+                                    <li class="d-flex align-items-start gap-3">
+                                        <i class="bi bi-check-circle-fill text-success pt-1"></i>
+                                        <span>Electronic devices must be surrendered at the examination hall entrance for academic integrity.</span>
+                                    </li>
+                                    <li class="d-flex align-items-start gap-3">
+                                        <i class="bi bi-check-circle-fill text-success pt-1"></i>
+                                        <span>Results should be committed to the academic ledger within 48 hours of assessment completion.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-5 d-flex align-items-center justify-content-center border-start border-opacity-10">
+                            <div class="text-center p-4">
+                                <i class="bi bi-shield-lock display-3 text-primary opacity-10 mb-3"></i>
+                                <h6 class="text-main fw-bold">Academic Security</h6>
+                                <p class="small text-muted mb-0 italic">This examination is formally logged under session <%= new Date().getFullYear() %>-<%= new Date().getFullYear()+1 %> Academic Registry.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sidebar Toggle for Mobile
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('show');
+            });
+        }
+    </script>
+</body>
+</html>

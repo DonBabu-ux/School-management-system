@@ -37,15 +37,26 @@ exports.getCollectFee = async (req, res) => {
 // Collect fee
 exports.collectFee = async (req, res) => {
     try {
-        const { studentId, amount, description } = req.body;
+        const { studentId, amount, description, term, academicYear, method } = req.body;
         const fee = new Fee({
             student: studentId,
             amount,
             description,
+            term,
+            academicYear,
+            paymentMethod: method,
             collectedBy: req.session.user.id
         });
         await fee.save();
-        res.redirect('/fees');
+        
+        // Update student fee balance if needed
+        const student = await Student.findById(studentId);
+        if (student) {
+            student.feeBalance = (student.feeBalance || 0) - Number(amount);
+            await student.save();
+        }
+
+        res.redirect(`/fees/invoice/${fee._id}`);
     } catch (error) {
         console.error(error);
         res.redirect('/fees/collect');
@@ -125,9 +136,17 @@ exports.getFeeReport = async (req, res) => {
 exports.generateFeeReport = async (req, res) => {
     try {
         const { classId, startDate, endDate } = req.body;
-        const report = await Fee.find({
+        const filter = {
             date: { $gte: new Date(startDate), $lte: new Date(endDate) }
-        }).populate('student');
+        };
+        
+        if (classId) {
+            const studentsInClass = await Student.find({ class: classId }).select('_id');
+            const studentIds = studentsInClass.map(s => s._id);
+            filter.student = { $in: studentIds };
+        }
+
+        const report = await Fee.find(filter).populate('student');
         const classes = await Class.find();
         res.render('fees/report', {
             title: 'Fee Report',
@@ -147,9 +166,11 @@ exports.generateFeeReport = async (req, res) => {
 // Generate invoice
 exports.generateInvoice = async (req, res) => {
     try {
-        const fee = await Fee.findById(req.params.id).populate('student');
+        const fee = await Fee.findById(req.params.id)
+            .populate('student')
+            .populate('collectedBy', 'firstName lastName');
         if (!fee) return res.redirect('/fees');
-        res.render('fees/invoice', { fee, user: req.session.user, title: 'Invoice' });
+        res.render('fees/invoice', { fee, user: req.session.user, title: 'Fee Receipt' });
     } catch (error) {
         console.error(error);
         res.redirect('/fees');

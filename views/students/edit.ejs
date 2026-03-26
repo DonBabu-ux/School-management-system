@@ -1,115 +1,170 @@
-<%- include('../layouts/header') %>
-<%- include('../layouts/sidebar') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EduSmart</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-main">
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <%- include('../layouts/sidebar') %>
 
-<div class="row mb-3">
-    <div class="col-md-6">
-        <h2>Edit Student</h2>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <%- include('../layouts/header') %>
+
+            <!-- Edit Student Content -->
+            <div class="animate-up">
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <div>
+                        <h2 class="h3 text-main mb-1">Update Student Records</h2>
+                        <p class="text-muted small mb-0">Modify academic and personal metadata for <%= student.firstName %>.</p>
+                    </div>
+                    <a href="/students/<%= student._id %>" class="btn btn-outline-secondary border-0 bg-white shadow-sm">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Profile
+                    </a>
+                </div>
+
+                <% if (error) { %>
+                    <div class="alert alert-danger mb-4 shadow-sm border-0 d-flex align-items-center rounded-16 p-3 animate-up">
+                        <i class="bi bi-exclamation-octagon-fill me-3 fs-3"></i>
+                        <div class="small fw-medium"><%= error %></div>
+                    </div>
+                <% } %>
+
+                <form action="/students/<%= student._id %>/edit" method="POST" enctype="multipart/form-data">
+                    <div class="row g-4">
+                        <div class="col-lg-8">
+                            <!-- Core Identity Card -->
+                            <div class="card border-0 shadow-sm p-4 mb-4">
+                                <h6 class="mb-4 text-muted small text-uppercase fw-bold"><i class="bi bi-person-bounding-box me-2"></i>Personal Data</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">First Name</label>
+                                        <input type="text" name="firstName" class="form-control bg-light border-0 py-3" value="<%= student.firstName %>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Last Name</label>
+                                        <input type="text" name="lastName" class="form-control bg-light border-0 py-3" value="<%= student.lastName %>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Gender Identity</label>
+                                        <select name="gender" class="form-select bg-light border-0 py-3">
+                                            <option value="Male" <%= student.gender === 'Male' ? 'selected' : '' %>>Male</option>
+                                            <option value="Female" <%= student.gender === 'Female' ? 'selected' : '' %>>Female</option>
+                                            <option value="Other" <%= student.gender === 'Other' ? 'selected' : '' %>>Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Date of Birth</label>
+                                        <input type="date" name="dateOfBirth" class="form-control bg-light border-0 py-3" value="<%= student.dateOfBirth ? (new Date(student.dateOfBirth)).toISOString().split('T')[0] : '' %>" required>
+                                    </div>
+                                    <div class="col-12 mt-3">
+                                        <label class="form-label fw-bold small text-muted">Residential Address</label>
+                                        <textarea name="address" class="form-control bg-light border-0" rows="3"><%= student.address %></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Placement Info -->
+                            <div class="card border-0 shadow-sm p-4">
+                                <h6 class="mb-4 text-muted small text-uppercase fw-bold"><i class="bi bi-mortarboard-fill me-2"></i>Institutional Placement</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Current Class Stream</label>
+                                        <select name="class" class="form-select bg-light border-0 py-3" required>
+                                            <% classes.forEach(c => { %>
+                                                <option value="<%= c._id %>" <%= student.class && student.class.toString() === c._id.toString() ? 'selected' : '' %>><%= c.className %> - <%= c.section %></option>
+                                            <% }) %>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small text-muted">Learning Status</label>
+                                        <select name="status" class="form-select bg-light border-0 py-3">
+                                            <option value="Active" <%= student.status === 'Active' ? 'selected' : '' %>>Active Student</option>
+                                            <option value="Inactive" <%= student.status === 'Inactive' ? 'selected' : '' %>>Transferred / On-Hold</option>
+                                            <option value="Graduated" <%= student.status === 'Graduated' ? 'selected' : '' %>>Alumnus / Graduated</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <!-- Image Card -->
+                            <div class="card border-0 shadow-sm p-4 mb-4 text-center">
+                                <h6 class="mb-4 text-muted small text-uppercase fw-bold">Identification Media</h6>
+                                <div class="mx-auto position-relative" style="width: 140px; height: 140px;">
+                                    <img src="/uploads/<%= student.profilePicture || 'default-avatar.png' %>" 
+                                         class="rounded-circle shadow-md border w-100 h-100 object-fit-cover bg-white" id="avatarPreview">
+                                    <button type="button" class="btn btn-primary btn-icon position-absolute bottom-0 end-0 rounded-circle" onclick="document.getElementById('profilePicture').click()">
+                                        <i class="bi bi-camera-fill"></i>
+                                    </button>
+                                </div>
+                                <input type="file" name="profilePicture" id="profilePicture" class="d-none" onchange="previewImage(event)">
+                                <div class="mt-4 p-3 bg-light rounded-12 text-start">
+                                    <div class="small fw-bold text-muted text-uppercase mb-1" style="font-size: 9px;">Admission Number</div>
+                                    <div class="fw-bold text-main h5 mb-0"><%= student.admissionNumber %></div>
+                                </div>
+                            </div>
+
+                            <!-- Guardian Info -->
+                            <div class="card border-0 shadow-sm p-4 mb-4">
+                                <h6 class="mb-4 text-muted small text-uppercase fw-bold"><i class="bi bi-telephone-fill me-2"></i>Guardian Contact</h6>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small text-muted">Primary Email</label>
+                                    <input type="email" name="email" class="form-control bg-light border-0 px-3" value="<%= student.email %>" placeholder="guardian@email.com">
+                                </div>
+                                <div class="mb-0">
+                                    <label class="form-label fw-bold small text-muted">Emergency Phone</label>
+                                    <input type="tel" name="phoneNumber" class="form-control bg-light border-0 px-3" value="<%= student.phoneNumber %>" required>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 py-3 rounded-12 shadow-md fw-bold mb-3">
+                                Save Manifest Changes
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </main>
     </div>
-    <div class="col-md-6 text-end">
-        <a href="/students" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Back to List
-        </a>
-    </div>
-</div>
 
-<!-- Error Message -->
-<% if (error) { %>
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-triangle-fill"></i> <%= error %>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<% } %>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function previewImage(event) {
+            const preview = document.getElementById('avatarPreview');
+            const file = event.target.files[0];
+            const reader = new FileReader();
 
-<% if (success) { %>
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle-fill"></i> <%= success %>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-<% } %>
+            reader.onloadend = function() {
+                preview.src = reader.result;
+            }
 
-<div class="form-card">
-    <form action="/students/<%= student._id %>/edit" method="POST" enctype="multipart/form-data" id="studentForm">
-        <!-- Profile Picture Upload -->
-        <div class="avatar-upload">
-            <div class="mb-3">
-                <img src="/uploads/students/<%= student.profilePicture || 'default-student.png' %>" alt="Preview" class="preview-avatar" id="avatarPreview">
-            </div>
-            <div class="mb-3">
-                <label for="profilePicture" class="form-label">Profile Picture</label>
-                <input type="file" class="form-control" id="profilePicture" name="profilePicture" accept="image/*" onchange="previewImage(this)">
-                <small class="text-muted">Leave empty to keep existing avatar</small>
-            </div>
-        </div>
-
-        <!-- Personal Information Section -->
-        <div class="form-section">
-            <h5><i class="bi bi-person-badge"></i> Personal Information</h5>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label for="firstName" class="form-label required">First Name</label>
-                    <input type="text" class="form-control" id="firstName" name="firstName" required value="<%= student.firstName %>">
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label for="lastName" class="form-label required">Last Name</label>
-                    <input type="text" class="form-control" id="lastName" name="lastName" required value="<%= student.lastName %>">
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label for="studentId" class="form-label required">Student ID</label>
-                    <input type="text" class="form-control" id="studentId" name="admissionNumber" required value="<%= student.admissionNumber %>" readonly>
-                    <small class="text-muted">Auto-generated admission number</small>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="email" class="form-label">Email Address</label>
-                    <input type="email" class="form-control" id="email" name="email" value="<%= student.email || '' %>">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="phoneNumber" class="form-label">Phone Number</label>
-                    <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" value="<%= student.phoneNumber || '' %>">
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="dateOfBirth" class="form-label required">Date of Birth</label>
-                    <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth" required value="<%= student.dateOfBirth.toISOString().split('T')[0] %>">
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label for="gender" class="form-label required">Gender</label>
-                    <select class="form-control" id="gender" name="gender" required>
-                        <option value="Male" <%= student.gender === 'Male' ? 'selected' : '' %>>Male</option>
-                        <option value="Female" <%= student.gender === 'Female' ? 'selected' : '' %>>Female</option>
-                        <option value="Other" <%= student.gender === 'Other' ? 'selected' : '' %>>Other</option>
-                    </select>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label for="class" class="form-label required">Class</label>
-                    <select class="form-control" id="class" name="class" required>
-                        <% classes.forEach(cl => { %>
-                            <option value="<%= cl._id %>" <%= student.class && student.class.toString() === cl._id.toString() ? 'selected' : '' %>><%= cl.className %> <%= cl.section %></option>
-                        <% }) %>
-                    </select>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label for="status" class="form-label">Status</label>
-                    <select class="form-control" id="status" name="status">
-                        <option value="Active" <%= student.status === 'Active' ? 'selected' : '' %>>Active</option>
-                        <option value="Inactive" <%= student.status === 'Inactive' ? 'selected' : '' %>>Inactive</option>
-                        <option value="Graduated" <%= student.status === 'Graduated' ? 'selected' : '' %>>Graduated</option>
-                        <option value="Expelled" <%= student.status === 'Expelled' ? 'selected' : '' %>>Expelled</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Additional sections could be added here -->
-        </div>
-
-        <button type="submit" class="btn btn-primary">Update Student</button>
-    </form>
-</div>
-
-<%- include('../layouts/footer') %>
-<%- include('../layouts/close-sidebar') %>
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Sidebar Toggle for Mobile
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('show');
+            });
+        }
+    </script>
+</body>
+</html>

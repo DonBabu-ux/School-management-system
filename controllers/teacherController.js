@@ -1,4 +1,6 @@
 const Teacher = require('../models/teacherModel');
+const User = require('../models/userModel');
+const crypto = require('crypto');
 
 exports.listTeachers = async (req, res) => {
     try {
@@ -31,6 +33,7 @@ exports.getAddTeacher = (req, res) => {
 
 exports.addTeacher = async (req, res) => {
     try {
+        const PigeonHole = require('../models/pigeonHoleModel');
         const teacherData = req.body;
         // handle legacy phoneNumber field
         if (teacherData.phoneNumber && !teacherData.phone) {
@@ -45,11 +48,55 @@ exports.addTeacher = async (req, res) => {
             employeeId = `TCH${String(lastNum + 1).padStart(3, '0')}`;
         }
         teacherData.employeeId = employeeId;
+        if (req.file) {
+            teacherData.profilePicture = 'teachers/' + req.file.filename;
+        }
 
+        // Generate a temporary random password
+        const generatedPassword = crypto.randomBytes(4).toString('hex').toUpperCase(); // 8 char password
+
+        // Create the Teacher profile
         const teacher = new Teacher(teacherData);
         await teacher.save();
+        
+        // Save credential to Pigeon Hole
+        const pigeonHole = new PigeonHole({
+            ownerName: `${teacherData.firstName} ${teacherData.lastName}`,
+            username: employeeId,
+            plainPassword: generatedPassword,
+            role: 'teacher'
+        });
+        await pigeonHole.save();
 
-        res.redirect('/teachers');
+        // Create the corresponding User account
+        const user = new User({
+            firstName: teacherData.firstName,
+            lastName: teacherData.lastName,
+            username: employeeId, // Set the login ID
+            email: teacherData.email,
+            password: generatedPassword,
+            role: 'teacher',
+            phoneNumber: teacherData.phone,
+            address: {
+                street: teacherData.address ? teacherData.address.street : '',
+                city: teacherData.address ? teacherData.address.city : '',
+                state: teacherData.address ? teacherData.address.state : '',
+                zipCode: teacherData.address ? teacherData.address.zipCode : ''
+            }
+        });
+        await user.save();
+
+        // Show success with credentials to the Admin
+        res.render('teachers/add-success', {
+            title: 'Teacher Successfully Registered',
+            user: req.session.user,
+            credentials: {
+                regNo: employeeId,
+                email: teacherData.email,
+                password: generatedPassword,
+                name: `${teacherData.firstName} ${teacherData.lastName}`
+            }
+        });
     } catch (error) {
         console.error(error);
         res.render('teachers/add', {
@@ -92,7 +139,8 @@ exports.getEditTeacher = async (req, res) => {
             title: 'Edit Teacher',
             teacher,
             user: req.session.user,
-            error: null
+            error: null,
+            success: null
         });
     } catch (error) {
         console.error(error);
@@ -106,6 +154,9 @@ exports.updateTeacher = async (req, res) => {
         const updateData = { ...req.body };
         if (updateData.phoneNumber && !updateData.phone) {
             updateData.phone = updateData.phoneNumber;
+        }
+        if (req.file) {
+            updateData.profilePicture = 'teachers/' + req.file.filename;
         }
         const teacher = await Teacher.findByIdAndUpdate(
             req.params.id,

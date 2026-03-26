@@ -62,6 +62,14 @@ const studentSchema = new mongoose.Schema({
         enum: ['Active', 'Inactive', 'Graduated', 'Expelled'],
         default: 'Active'
     },
+    totalFees: {
+        type: Number,
+        default: 0
+    },
+    feeBalance: {
+        type: Number,
+        default: 0
+    },
     createdAt: {
         type: Date,
         default: Date.now

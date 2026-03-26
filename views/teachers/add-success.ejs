@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | EduSmart</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-main">
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <%- include('../layouts/sidebar') %>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <%- include('../layouts/header') %>
+
+            <!-- Success Content -->
+            <div class="animate-up d-flex flex-column align-items-center justify-content-center" style="min-height: 70vh;">
+                <div class="card border-0 shadow-lg p-5 text-center bg-white" style="border-radius: 32px; max-width: 600px;">
+                    <div class="mb-4">
+                        <div class="stats-icon bg-success bg-opacity-10 text-success mx-auto" style="width: 80px; height: 80px; font-size: 2.5rem;">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+                    </div>
+                    
+                    <h2 class="fw-bold text-main mb-2">Faculty Registered Successfully!</h2>
+                    <p class="text-muted mb-5">Teacher <strong><%= credentials.name %></strong> has been added to the system. Please provide them with the following auto-generated credentials.</p>
+
+                    <!-- Credentials Card -->
+                    <div class="bg-light rounded-24 p-4 text-start mb-5 position-relative">
+                        <div class="credential-item mb-4 pb-4 border-bottom">
+                            <label class="tiny fw-bold text-muted text-uppercase mb-2 d-block">Employee ID (Username)</label>
+                            <div class="h4 fw-bold text-main mb-0 font-monospace text-primary"><%= credentials.regNo %></div>
+                        </div>
+                        <div class="credential-item mb-4 pb-4 border-bottom">
+                            <label class="tiny fw-bold text-muted text-uppercase mb-2 d-block">Email Address</label>
+                            <div class="h5 fw-bold text-secondary mb-0"><%= credentials.email %></div>
+                        </div>
+                        <div class="credential-item">
+                            <label class="tiny fw-bold text-muted text-uppercase mb-2 d-block">Temporary Password</label>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="h4 fw-bold text-dark mb-0 font-monospace"><%= credentials.password %></span>
+                                <button class="btn btn-sm btn-outline-primary rounded-8 py-2 px-3" onclick="copyPassword('<%= credentials.password %>')">
+                                    <i class="bi bi-copy me-2"></i>Copy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 justify-content-center">
+                        <a href="/teachers" class="btn btn-primary px-5 py-3 rounded-16 shadow-md fw-bold">
+                            View All Teachers
+                        </a>
+                        <a href="/teachers/add" class="btn btn-light px-5 py-3 rounded-16 border text-muted fw-bold">
+                            Add Another
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function copyPassword(pw) {
+            navigator.clipboard.writeText(pw).then(() => {
+                alert('Password copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>
