@@ -43,7 +43,7 @@
         .date-badge { background: var(--karu-primary); color: white; padding: 5px 10px; font-size: 0.75rem; font-weight: bold; border-radius: 4px; display: inline-block; margin-bottom: 10px; }
         
         /* Login Card */
-        .login-card { background: white; border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 5px solid var(--karu-primary); }
+        .login-card { background: white; border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 5px solid #27ae60; }
         
         /* Alumni Block */
         .alumni-card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-left: 4px solid var(--karu-accent); height: 100%; }
@@ -143,7 +143,7 @@
                                 <label class="small fw-bold text-muted mb-1">Password</label>
                                 <input type="password" name="password" class="form-control bg-light" placeholder="********" required>
                             </div>
-                            <button type="submit" class="btn w-100 py-2 fw-bold text-white mb-3" style="background: var(--karu-primary);">Sign In</button>
+                            <button type="submit" class="btn w-100 py-2 fw-bold text-white mb-3" style="background: #27ae60;">Sign In</button>
                             <div class="text-center">
                                 <a href="/auth/forgot-password" class="small text-decoration-none" style="color: var(--karu-primary);"><i class="bi bi-lock me-1"></i>Forgot Password?</a>
                             </div>
@@ -321,9 +321,9 @@
                         </div>
                     </div>
                     <ul class="list-group list-group-flush mt-4 border-bottom">
-                       <li class="list-group-item d-flex justify-content-between bg-transparent px-0"><strong>Today:</strong> <span>54</span></li>
-                       <li class="list-group-item d-flex justify-content-between bg-transparent px-0"><strong>Yesterday:</strong> <span>1601</span></li>
-                       <li class="list-group-item d-flex justify-content-between bg-transparent px-0"><strong>Total Visits Yesterday:</strong> <span>15957</span></li>
+                       <li class="list-group-item d-flex justify-content-between bg-transparent px-0"><strong>Today:</strong> <span><%= stats.today || 1 %></span></li>
+                       <li class="list-group-item d-flex justify-content-between bg-transparent px-0"><strong>Yesterday:</strong> <span><%= stats.yesterday || 0 %></span></li>
+                       <li class="list-group-item d-flex justify-content-between bg-transparent px-0"><strong>Total All Time:</strong> <span><%= stats.visits || 0 %></span></li>
                     </ul>
                 </div>
                 <div class="col-lg-7">

@@ -21,7 +21,7 @@ const examRoutes = require('./routes/examRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const feesRoutes = require('./routes/feesRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
-const Stat = require('./models/statModel');
+const { Stat, DailyVisit } = require('./models/statModel');
 const Announcement = require('./models/announcementModel');
 const User = require('./models/userModel');
 const Notification = require('./models/notificationModel');
@@ -160,29 +160,44 @@ app.get('/login', (req, res) => res.redirect('/auth/login'));
 // Home route (Landing Page)
 app.get('/', async (req, res) => {
     try {
-        // Track visit
+        const today = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
+        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+
+        // Track total + today's visit
         let stats = await Stat.findOne();
         if (!stats) stats = new Stat();
         stats.totalVisits += 1;
         await stats.save();
 
+        // Upsert daily visit counter
+        await DailyVisit.findOneAndUpdate(
+            { date: today },
+            { $inc: { count: 1 } },
+            { upsert: true, new: true }
+        );
+
+        const todayVisit = await DailyVisit.findOne({ date: today });
+        const yesterdayVisit = await DailyVisit.findOne({ date: yesterday });
+
         // Fetch announcements
         const announcements = await Announcement.find({ status: 'published' }).sort({ createdAt: -1 }).limit(3);
         
-        // Count online (simplified: active users in last 15 mins)
+        // Count online (active users in last 15 mins)
         const onlineCount = await User.countDocuments({ lastLogin: { $gte: new Date(Date.now() - 15*60*1000) } });
 
         res.render('landing', {
-            title: 'Welcome to EduSmart',
+            title: 'Welcome to Edu Learning',
             announcements,
             stats: {
                 visits: stats.totalVisits,
-                online: onlineCount || 1 // At least the current visitor
+                online: onlineCount || 1,
+                today: todayVisit ? todayVisit.count : 1,
+                yesterday: yesterdayVisit ? yesterdayVisit.count : 0
             }
         });
     } catch (error) {
         console.error('Landing error:', error);
-        res.render('landing', { title: 'Welcome to EduSmart', announcements: [], stats: { visits: 0, online: 1 } });
+        res.render('landing', { title: 'Welcome to Edu Learning', announcements: [], stats: { visits: 0, online: 1, today: 1, yesterday: 0 } });
     }
 });
 
@@ -251,4 +266,8 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
     console.log(`📍 http://localhost:${PORT}`);
+
+    // Start keep-alive to prevent Render.com from sleeping
+    const { startKeepAlive } = require('./utils/keepAlive');
+    startKeepAlive(PORT);
 });
